@@ -1,4 +1,4 @@
-# Contributing to node-red-contrib-ibm-mvi Project
+# Contributing to cw project
 
 
 
@@ -24,7 +24,7 @@ If you cannot find your symptom or , then please share the problem with us by su
 
 ### Developer Certificate of Origin (DCO)
 
-node-red-contrib-ibm-mvi  have tried to make it as easy as possible to make contributions. This applies to how we handle the legal aspects of contribution. We use the same approach - the [DCO1.1.txt](DCO1.1.txt)  that the Linux® Kernel [community](https://elinux.org/Developer_Certificate_Of_Origin) uses to manage code contributions. We simply ask that when submitting a patch for review, the developer must include a sign-off statement in the commit message. Here is an example Signed-off-by line, which indicates that the submitter accepts the DCO:
+cw  have tried to make it as easy as possible to make contributions. This applies to how we handle the legal aspects of contribution. We use the same approach - the [DCO1.1.txt](DCO1.1.txt)  that the Linux® Kernel [community](https://elinux.org/Developer_Certificate_Of_Origin) uses to manage code contributions. We simply ask that when submitting a patch for review, the developer must include a sign-off statement in the commit message. Here is an example Signed-off-by line, which indicates that the submitter accepts the DCO:
 
 ```
 Signed-off-by: John Doe <john.doe@example.com>
