@@ -1,6 +1,6 @@
 # Data Wrangler (dw)
 
-[cw](https://github.com/MountainField/dw) is a data wrangling tool for command-line interface user.
+[dw](https://github.com/MountainField/dw) is a data wrangling tool for command-line interface user.
 
 - Example
 
