@@ -1,5 +1,4 @@
-Command-line Wrangler (CW)
-============
+# Command-line Wrangler (CW)
 
 [cw](https://github.com/MountainField/cw) is a data wrangling tool for command-line interface user.
 
@@ -22,24 +21,25 @@ Command-line Wrangler (CW)
     ```
 
 
-Installation
------------
+## Setup
 
 ```bash
-pip install cw
+pip install git+https://github.com/MountainField/cw
 ```
+
+Author
+------
+
+- **Takahide Nogayama** - [Nogayama](https://github.com/nogayama)
+
+
+License
+-------
+
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details
 
 Contributing
 ------------
 
-1. Clone this repo (`git clone git@github.ibm.com:data-science-at-command-line/cw.git`)
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -s -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
+Please read [CONTRIBUTING.md](./CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
-
-Author
--------
-
-- **Takahide Nogayama** - [NOGAYAMA](https://github.ibm.com/NOGAYAMA)
