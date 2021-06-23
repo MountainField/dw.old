@@ -17,14 +17,14 @@ import io
 import logging
 import sys
 
-import cw
+import dw
 import textwrap
 
-LOGGER = logging.getLogger("cw")
+LOGGER = logging.getLogger("dw")
 
 if sys.version_info[0] >= 3:
 
-    def open_text_reader(input_file, text_encoding=cw.DEFAULT_TEXT_ENCODING, text_errors=cw.DEFAULT_TEXT_ERRORS, text_newline=cw.DEFAULT_TEXT_NEWLINE):
+    def open_text_reader(input_file, text_encoding=dw.DEFAULT_TEXT_ENCODING, text_errors=dw.DEFAULT_TEXT_ERRORS, text_newline=dw.DEFAULT_TEXT_NEWLINE):
         
         LOGGER.info("Opening input_file: %s, encoding: %s, errors: %s, newline: %s", input_file, text_encoding, text_errors, text_newline)
         if input_file == "-":
@@ -36,7 +36,7 @@ if sys.version_info[0] >= 3:
             text_reader = io.open(input_file, mode="rt", encoding=text_encoding, newline=text_newline, errors=text_errors)
         return text_reader
     
-    def open_text_writer(output_file, text_encoding=cw.DEFAULT_TEXT_ENCODING, text_errors=cw.DEFAULT_TEXT_ERRORS, text_newline=cw.DEFAULT_TEXT_NEWLINE):
+    def open_text_writer(output_file, text_encoding=dw.DEFAULT_TEXT_ENCODING, text_errors=dw.DEFAULT_TEXT_ERRORS, text_newline=dw.DEFAULT_TEXT_NEWLINE):
         
         LOGGER.info("Opening output_file: %s, encoding: %s, errors: %s, newline: %s", output_file, text_encoding, text_errors, text_newline)
         if output_file == "-":
@@ -50,21 +50,21 @@ if sys.version_info[0] >= 3:
 
 else:
     
-    def open_text_reader(input_file, text_encoding=cw.DEFAULT_TEXT_ENCODING, text_errors=cw.DEFAULT_TEXT_ERRORS, text_newline=cw.DEFAULT_TEXT_NEWLINE):
+    def open_text_reader(input_file, text_encoding=dw.DEFAULT_TEXT_ENCODING, text_errors=dw.DEFAULT_TEXT_ERRORS, text_newline=dw.DEFAULT_TEXT_NEWLINE):
         
         LOGGER.info("Opening input_file: %s, encoding: %s, errors: %s, newline: %s", input_file, text_errors, text_errors, text_newline)
         if input_file == "-":
-            byte_reader = io.BufferedReader(cw.StdIoWrapper(sys.stdin))
+            byte_reader = io.BufferedReader(dw.StdIoWrapper(sys.stdin))
             text_reader = io.TextIOWrapper(byte_reader, encoding=text_encoding, newline=text_newline, errors=text_errors)
         else:
             text_reader = io.open(input_file, mode="rt", encoding=text_encoding, newline=text_newline, errors=text_errors)
         return text_reader
     
-    def open_text_writer(output_file, text_encoding=cw.DEFAULT_TEXT_ENCODING, text_errors=cw.DEFAULT_TEXT_ERRORS, text_newline=cw.DEFAULT_TEXT_NEWLINE):
+    def open_text_writer(output_file, text_encoding=dw.DEFAULT_TEXT_ENCODING, text_errors=dw.DEFAULT_TEXT_ERRORS, text_newline=dw.DEFAULT_TEXT_NEWLINE):
         
         LOGGER.info("Opening output_file: %s, encoding: %s, errors: %s, newline: %s", output_file, text_encoding, text_errors, text_newline)
         if output_file == "-":
-            byte_writer = cw.StdIoWrapper(sys.stdout)
+            byte_writer = dw.StdIoWrapper(sys.stdout)
             text_writer = io.TextIOWrapper(byte_writer, encoding=text_encoding, newline=text_newline, errors=text_errors)
 
         else:
@@ -88,8 +88,8 @@ class AbstractHasEncodingArg(object):
                 Text encoding:
                     The encoding rule to decode from bytes to unicode, and to encode from unicode to bytes.
                     
-                    The cw-text command prints supported encoding in your system.
-                    $ cw-text --supported-encoding | grep utf
+                    The dw-text command prints supported encoding in your system.
+                    $ dw-text --supported-encoding | grep utf
                         utf16
                         utf32
                         utf7
@@ -110,8 +110,8 @@ class HasInputEncodingArg(AbstractHasEncodingArg):
         AbstractHasEncodingArg.__init__(self)
         
         self.arg_parser.add_argument("--input-encoding", "--encoding", "-e", metavar="ENCODING", nargs=None,
-                                     dest="input_text_encoding", default=cw.DEFAULT_TEXT_ENCODING,
-                                     help="text encoding for input. [default stdio: '{0}']".format(cw.DEFAULT_TEXT_ENCODING))
+                                     dest="input_text_encoding", default=dw.DEFAULT_TEXT_ENCODING,
+                                     help="text encoding for input. [default stdio: '{0}']".format(dw.DEFAULT_TEXT_ENCODING))
 
 
 class HasOutputEncodingArg(AbstractHasEncodingArg):
@@ -121,8 +121,8 @@ class HasOutputEncodingArg(AbstractHasEncodingArg):
         AbstractHasEncodingArg.__init__(self)
         
         self.arg_parser.add_argument("--output-encoding", "--Encoding", "-E", metavar="ENCODING", nargs=None,
-                                     dest="output_text_encoding", default=cw.DEFAULT_TEXT_ENCODING,
-                                     help="text encoding for output. [default stdio: '{0}']".format(cw.DEFAULT_TEXT_ENCODING))
+                                     dest="output_text_encoding", default=dw.DEFAULT_TEXT_ENCODING,
+                                     help="text encoding for output. [default stdio: '{0}']".format(dw.DEFAULT_TEXT_ENCODING))
 
 
 class AbstractHasErrorsArg(object):
@@ -155,8 +155,8 @@ class HasInputErrorsArg(AbstractHasErrorsArg):
         AbstractHasErrorsArg.__init__(self)
         
         self.arg_parser.add_argument("--input-errors", "--errors", metavar="ERRORS", nargs=None,
-                                     dest="input_text_errors", default=cw.DEFAULT_TEXT_ERRORS,
-                                     help="error handler of text encoding for input. [default: {0}]".format(cw.DEFAULT_TEXT_ERRORS))
+                                     dest="input_text_errors", default=dw.DEFAULT_TEXT_ERRORS,
+                                     help="error handler of text encoding for input. [default: {0}]".format(dw.DEFAULT_TEXT_ERRORS))
 
 
 class HasOutputErrorsArg(AbstractHasErrorsArg):
@@ -166,26 +166,26 @@ class HasOutputErrorsArg(AbstractHasErrorsArg):
         AbstractHasErrorsArg.__init__(self)
         
         self.arg_parser.add_argument("--output-errors", "--Errors", metavar="ERRORS", nargs=None,
-                                     dest="output_text_errors", default=cw.DEFAULT_TEXT_ERRORS,
-                                     help="error handler of text encoding for output. [default: {0}]".format(cw.DEFAULT_TEXT_ERRORS))
+                                     dest="output_text_errors", default=dw.DEFAULT_TEXT_ERRORS,
+                                     help="error handler of text encoding for output. [default: {0}]".format(dw.DEFAULT_TEXT_ERRORS))
 
 ################################################################################
 # print
 
 
 def to_text(input_file="-", output_file="-",
-           input_text_encoding=cw.DEFAULT_TEXT_ENCODING, input_text_errors=cw.DEFAULT_TEXT_ERRORS,
-           output_text_encoding=cw.DEFAULT_TEXT_ENCODING, output_text_errors=cw.DEFAULT_TEXT_ERRORS):
+           input_text_encoding=dw.DEFAULT_TEXT_ENCODING, input_text_errors=dw.DEFAULT_TEXT_ERRORS,
+           output_text_encoding=dw.DEFAULT_TEXT_ENCODING, output_text_errors=dw.DEFAULT_TEXT_ERRORS):
 
-    with cw.text.open_text_writer(output_file, text_encoding=output_text_encoding, text_errors=output_text_errors) as text_writer:
-        with cw.text.open_text_reader(input_file, text_encoding=input_text_encoding, text_errors=input_text_errors) as text_reader:
+    with dw.text.open_text_writer(output_file, text_encoding=output_text_encoding, text_errors=output_text_errors) as text_writer:
+        with dw.text.open_text_reader(input_file, text_encoding=input_text_encoding, text_errors=input_text_errors) as text_reader:
             for text_line in text_reader:
                 text_writer.write(text_line)
 
 
-class ToTextCli(cw.bytes.ToBytes, HasInputEncodingArg, HasInputErrorsArg, HasOutputEncodingArg, HasOutputErrorsArg):
+class ToTextCli(dw.bytes.ToBytes, HasInputEncodingArg, HasInputErrorsArg, HasOutputEncodingArg, HasOutputErrorsArg):
     
-    def __init__(self, name="cw-text-to-text", description="cw-text-to-text", *args, **kwargs):
+    def __init__(self, name="dw-text-to-text", description="dw-text-to-text", *args, **kwargs):
         
         super(ToTextCli, self).__init__(name=name, description=description, *args, **kwargs)
         HasInputEncodingArg.__init__(self)
@@ -195,9 +195,9 @@ class ToTextCli(cw.bytes.ToBytes, HasInputEncodingArg, HasInputErrorsArg, HasOut
         
     def main(self,
              input_file="-", output_file="-",
-             input_text_encoding=cw.DEFAULT_TEXT_ENCODING, input_text_errors=cw.DEFAULT_TEXT_ERRORS,
-             output_text_encoding=cw.DEFAULT_TEXT_ENCODING, output_text_errors=cw.DEFAULT_TEXT_ERRORS,
-             log_level=cw.DEFAULT_LOG_LEVEL):
+             input_text_encoding=dw.DEFAULT_TEXT_ENCODING, input_text_errors=dw.DEFAULT_TEXT_ERRORS,
+             output_text_encoding=dw.DEFAULT_TEXT_ENCODING, output_text_errors=dw.DEFAULT_TEXT_ERRORS,
+             log_level=dw.DEFAULT_LOG_LEVEL):
         self.set_log_config(log_level=log_level)
         to_text(input_file, output_file,
                 input_text_encoding=input_text_encoding, input_text_errors=input_text_errors,

@@ -25,9 +25,9 @@ import textwrap
 
 builtincsv.field_size_limit(sys.maxsize)
 
-import cw
+import dw
 
-LOGGER = logging.getLogger("cw")
+LOGGER = logging.getLogger("dw")
 
 
 class Closeable(object):
@@ -104,23 +104,23 @@ if sys.version_info[0] >= 3:
             Closeable.__init__(self, f, close_io_obj)
     
     def opencsv_reader(input_file,
-                        text_encoding=cw.DEFAULT_TEXT_ENCODING, text_errors=cw.DEFAULT_TEXT_ERRORS,
-                        csv_delimiter=cw.DEFAULT_CSV_DELIMITER, csv_quotechar=cw.DEFAULT_CSV_QUOTECHAR):
-        text_reader = cw.text.open_text_reader(input_file, text_encoding=text_encoding, text_errors=text_errors)  # TODO: new line はちゃんと考える
+                        text_encoding=dw.DEFAULT_TEXT_ENCODING, text_errors=dw.DEFAULT_TEXT_ERRORS,
+                        csv_delimiter=dw.DEFAULT_CSV_DELIMITER, csv_quotechar=dw.DEFAULT_CSV_QUOTECHAR):
+        text_reader = dw.text.open_text_reader(input_file, text_encoding=text_encoding, text_errors=text_errors)  # TODO: new line はちゃんと考える
         csv_reader = CloseableCsvReader(text_reader, delimiter=csv_delimiter, quotechar=csv_quotechar)
         return csv_reader
 
     def opencsv_dict_reader(input_file,
-                             text_encoding=cw.DEFAULT_TEXT_ENCODING, text_errors=cw.DEFAULT_TEXT_ERRORS,
-                             csv_delimiter=cw.DEFAULT_CSV_DELIMITER, csv_quotechar=cw.DEFAULT_CSV_QUOTECHAR):
-        text_reader = cw.text.open_text_reader(input_file, text_encoding=text_encoding, text_errors=text_errors)  # TODO: new line はちゃんと考える
+                             text_encoding=dw.DEFAULT_TEXT_ENCODING, text_errors=dw.DEFAULT_TEXT_ERRORS,
+                             csv_delimiter=dw.DEFAULT_CSV_DELIMITER, csv_quotechar=dw.DEFAULT_CSV_QUOTECHAR):
+        text_reader = dw.text.open_text_reader(input_file, text_encoding=text_encoding, text_errors=text_errors)  # TODO: new line はちゃんと考える
         csv_dict_reader = CloseableCsvDictReader(text_reader, delimiter=csv_delimiter, quotechar=csv_quotechar)
         return csv_dict_reader
     
     def opencsv_writer(output_file,
-                        text_encoding=cw.DEFAULT_TEXT_ENCODING, text_errors=cw.DEFAULT_TEXT_ERRORS,
-                        csv_delimiter=cw.DEFAULT_CSV_DELIMITER, csv_quotechar=cw.DEFAULT_CSV_QUOTECHAR, output_csv_quoting=cw.DEFAULT_CSV_QUOTING):
-        text_writer = cw.text.open_text_writer(output_file, text_encoding=text_encoding, text_errors=text_errors)  # TODO: new line はちゃんと考える
+                        text_encoding=dw.DEFAULT_TEXT_ENCODING, text_errors=dw.DEFAULT_TEXT_ERRORS,
+                        csv_delimiter=dw.DEFAULT_CSV_DELIMITER, csv_quotechar=dw.DEFAULT_CSV_QUOTECHAR, output_csv_quoting=dw.DEFAULT_CSV_QUOTING):
+        text_writer = dw.text.open_text_writer(output_file, text_encoding=text_encoding, text_errors=text_errors)  # TODO: new line はちゃんと考える
         quoting = getattr(builtincsv, "QUOTE_" + output_csv_quoting.upper(), builtincsv.QUOTE_MINIMAL)
         csv_writer = CloseableCsvWriter(text_writer,
                                         delimiter=csv_delimiter, quotechar=csv_quotechar, quoting=quoting)
@@ -128,15 +128,15 @@ if sys.version_info[0] >= 3:
 
     def opencsv_dict_writer(output_file,
                              fieldnames,
-                             text_encoding=cw.DEFAULT_TEXT_ENCODING, text_errors=cw.DEFAULT_TEXT_ERRORS,
-                             csv_delimiter=cw.DEFAULT_CSV_DELIMITER, csv_quotechar=cw.DEFAULT_CSV_QUOTECHAR, output_csv_quoting=cw.DEFAULT_CSV_QUOTING):
-        text_writer = cw.text.open_text_writer(output_file, text_encoding=text_encoding, text_errors=text_errors)  # TODO: new line はちゃんと考える
+                             text_encoding=dw.DEFAULT_TEXT_ENCODING, text_errors=dw.DEFAULT_TEXT_ERRORS,
+                             csv_delimiter=dw.DEFAULT_CSV_DELIMITER, csv_quotechar=dw.DEFAULT_CSV_QUOTECHAR, output_csv_quoting=dw.DEFAULT_CSV_QUOTING):
+        text_writer = dw.text.open_text_writer(output_file, text_encoding=text_encoding, text_errors=text_errors)  # TODO: new line はちゃんと考える
         quoting = getattr(builtincsv, "QUOTE_" + output_csv_quoting.upper(), builtincsv.QUOTE_MINIMAL)
         csv_dict_writer = CloseableCsvDictWriter(text_writer, fieldnames, delimiter=csv_delimiter, quotechar=csv_quotechar, quoting=quoting)
         return csv_dict_writer
 
 
-def gather_values_from_csv_texts(csv_texts, delimiter=cw.DEFAULT_CSV_DELIMITER, quotechar=cw.DEFAULT_CSV_QUOTECHAR):
+def gather_values_from_csv_texts(csv_texts, delimiter=dw.DEFAULT_CSV_DELIMITER, quotechar=dw.DEFAULT_CSV_QUOTECHAR):
     values = []
     for csv_text in csv_texts:
         csv_reader = CloseableCsvReader(io.StringIO(csv_text), delimiter=delimiter, quotechar=quotechar)
@@ -152,7 +152,7 @@ def load_metadata(metadata_file):
     metadata = {}
     if metadata_file:
         if os.path.exists(metadata_file):
-            with io.open(metadata_file, "rt", encoding=cw.DEFAULT_TEXT_ENCODING, errors=cw.DEFAULT_TEXT_ERRORS) as f:
+            with io.open(metadata_file, "rt", encoding=dw.DEFAULT_TEXT_ENCODING, errors=dw.DEFAULT_TEXT_ERRORS) as f:
                 metadata = json.load(f)
     return metadata
 
@@ -256,10 +256,10 @@ class CloseableCsvTypedDictWriter(Closeable):
 
 
 def open_csv_typed_dict_reader(input_file,
-                               text_encoding=cw.DEFAULT_TEXT_ENCODING, text_errors=cw.DEFAULT_TEXT_ERRORS,
-                               csv_delimiter=cw.DEFAULT_CSV_DELIMITER, csv_quotechar=cw.DEFAULT_CSV_QUOTECHAR,
+                               text_encoding=dw.DEFAULT_TEXT_ENCODING, text_errors=dw.DEFAULT_TEXT_ERRORS,
+                               csv_delimiter=dw.DEFAULT_CSV_DELIMITER, csv_quotechar=dw.DEFAULT_CSV_QUOTECHAR,
                                fieldname2deserializer={}):
-    text_reader = cw.text.open_text_reader(input_file, text_encoding=text_encoding, text_errors=text_errors)  # TODO: new line はちゃんと考える
+    text_reader = dw.text.open_text_reader(input_file, text_encoding=text_encoding, text_errors=text_errors)  # TODO: new line はちゃんと考える
     csv_dict_reader = CloseableCsvDictReader(text_reader, delimiter=csv_delimiter, quotechar=csv_quotechar)
     csv_typed_dict_reader = CloseableCsvTypedDictReader(csv_dict_reader, fieldname2deserializer)
     return csv_typed_dict_reader
@@ -267,10 +267,10 @@ def open_csv_typed_dict_reader(input_file,
 
 def open_csv_typed_dict_writer(output_file,
                               fieldnames,
-                              text_encoding=cw.DEFAULT_TEXT_ENCODING, text_errors=cw.DEFAULT_TEXT_ERRORS,
-                              csv_delimiter=cw.DEFAULT_CSV_DELIMITER, csv_quotechar=cw.DEFAULT_CSV_QUOTECHAR, output_csv_quoting=cw.DEFAULT_CSV_QUOTING,
+                              text_encoding=dw.DEFAULT_TEXT_ENCODING, text_errors=dw.DEFAULT_TEXT_ERRORS,
+                              csv_delimiter=dw.DEFAULT_CSV_DELIMITER, csv_quotechar=dw.DEFAULT_CSV_QUOTECHAR, output_csv_quoting=dw.DEFAULT_CSV_QUOTING,
                               fieldname2serializer={}):
-    text_writer = cw.text.open_text_writer(output_file, text_encoding=text_encoding, text_errors=text_errors)  # TODO: new line はちゃんと考える
+    text_writer = dw.text.open_text_writer(output_file, text_encoding=text_encoding, text_errors=text_errors)  # TODO: new line はちゃんと考える
     quoting = getattr(builtincsv, "QUOTE_" + output_csv_quoting.upper(), builtincsv.QUOTE_MINIMAL)
     csv_dict_writer = CloseableCsvDictWriter(text_writer, fieldnames, delimiter=csv_delimiter, quotechar=csv_quotechar, quoting=quoting)
     csv_typed_dict_writer = CloseableCsvTypedDictWriter(csv_dict_writer, fieldname2serializer=fieldname2serializer)
@@ -285,8 +285,8 @@ class HasInputCsvDelimiterArgs(object):
 
     def __init__(self):
         self.arg_parser.add_argument("--input-delimiter", "--delimiter", "-d", metavar="CHAR", nargs=None,
-                                dest="input_csv_delimiter", default=cw.DEFAULT_CSV_DELIMITER,
-                                help="delimiter char for input csv [default: '{0}']".format(cw.DEFAULT_CSV_DELIMITER))
+                                dest="input_csv_delimiter", default=dw.DEFAULT_CSV_DELIMITER,
+                                help="delimiter char for input csv [default: '{0}']".format(dw.DEFAULT_CSV_DELIMITER))
 
 
 class HasOutputCsvDelimiterArgs(object):
@@ -294,8 +294,8 @@ class HasOutputCsvDelimiterArgs(object):
 
     def __init__(self):
         self.arg_parser.add_argument("--output-delimiter", "--Delimiter", "-D", metavar="CHAR", nargs=None,
-                                dest="output_csv_delimiter", default=cw.DEFAULT_CSV_DELIMITER,
-                                help="delimiter char for output csv [default: '{0}']".format(cw.DEFAULT_CSV_DELIMITER))
+                                dest="output_csv_delimiter", default=dw.DEFAULT_CSV_DELIMITER,
+                                help="delimiter char for output csv [default: '{0}']".format(dw.DEFAULT_CSV_DELIMITER))
 
 
 class HasInputCsvQuoteCharArgs(object):
@@ -303,8 +303,8 @@ class HasInputCsvQuoteCharArgs(object):
 
     def __init__(self):
         self.arg_parser.add_argument("--input-quotechar", "--quotechar", "-q", metavar="CHAR", nargs=None,
-                                dest="input_csv_quotechar", default=cw.DEFAULT_CSV_QUOTECHAR,
-                                help="qute char for input csv [default: '{0}']".format(cw.DEFAULT_CSV_QUOTECHAR))
+                                dest="input_csv_quotechar", default=dw.DEFAULT_CSV_QUOTECHAR,
+                                help="qute char for input csv [default: '{0}']".format(dw.DEFAULT_CSV_QUOTECHAR))
 
 
 class HasOutputCsvQuoteCharArgs(object):
@@ -312,11 +312,11 @@ class HasOutputCsvQuoteCharArgs(object):
 
     def __init__(self):
         self.arg_parser.add_argument("--output-quotechar", "--Quotechar", "-Q", metavar="CHAR", nargs=None,
-                                dest="output_csv_quotechar", default=cw.DEFAULT_CSV_QUOTECHAR,
-                                help="qute char for output csv [default: '{0}']".format(cw.DEFAULT_CSV_QUOTECHAR))
+                                dest="output_csv_quotechar", default=dw.DEFAULT_CSV_QUOTECHAR,
+                                help="qute char for output csv [default: '{0}']".format(dw.DEFAULT_CSV_QUOTECHAR))
 
         self.arg_parser.add_argument("--output-quoting", "--Quoting", metavar="QUOTING", nargs=None,
-                                dest="output_csv_quoting", default=cw.DEFAULT_CSV_QUOTING,
+                                dest="output_csv_quoting", default=dw.DEFAULT_CSV_QUOTING,
                                 help="quoting style for output csv (ALL, MINIMAL, NONNUMERIC, NONE) [default: MINIMAL]")
         
         self.arg_parser.epilog += textwrap.dedent("""
@@ -336,24 +336,24 @@ class HasOutputCsvQuoteCharArgs(object):
 
 
 def tocsv(input_file="-", output_file="-",
-           input_text_encoding=cw.DEFAULT_TEXT_ENCODING, input_text_errors=cw.DEFAULT_TEXT_ERRORS,
-           output_text_encoding=cw.DEFAULT_TEXT_ENCODING, output_text_errors=cw.DEFAULT_TEXT_ERRORS,
-           input_csv_delimiter=cw.DEFAULT_CSV_DELIMITER, input_csv_quotechar=cw.DEFAULT_CSV_QUOTECHAR,
-           output_csv_delimiter=cw.DEFAULT_CSV_DELIMITER, output_csv_quotechar=cw.DEFAULT_CSV_QUOTECHAR, output_csv_quoting=cw.DEFAULT_CSV_QUOTING):
+           input_text_encoding=dw.DEFAULT_TEXT_ENCODING, input_text_errors=dw.DEFAULT_TEXT_ERRORS,
+           output_text_encoding=dw.DEFAULT_TEXT_ENCODING, output_text_errors=dw.DEFAULT_TEXT_ERRORS,
+           input_csv_delimiter=dw.DEFAULT_CSV_DELIMITER, input_csv_quotechar=dw.DEFAULT_CSV_QUOTECHAR,
+           output_csv_delimiter=dw.DEFAULT_CSV_DELIMITER, output_csv_quotechar=dw.DEFAULT_CSV_QUOTECHAR, output_csv_quoting=dw.DEFAULT_CSV_QUOTING):
     
-    with cw.csv.opencsv_reader(input_file,
+    with dw.csv.opencsv_reader(input_file,
                                 text_encoding=input_text_encoding, text_errors=input_text_errors,
                                 csv_delimiter=input_csv_delimiter, csv_quotechar=input_csv_quotechar) as csv_reader:
-        with cw.csv.opencsv_writer(output_file,
+        with dw.csv.opencsv_writer(output_file,
                                     text_encoding=output_text_encoding, text_errors=output_text_errors,
                                     csv_delimiter=output_csv_delimiter, csv_quotechar=output_csv_quotechar, output_csv_quoting=output_csv_quoting) as csv_writer:
             for values in csv_reader:
                 csv_writer.writerow(values)
 
 
-class ToCsvCli(cw.text.ToTextCli, HasInputCsvDelimiterArgs, HasInputCsvQuoteCharArgs, HasOutputCsvDelimiterArgs, HasOutputCsvQuoteCharArgs):
+class ToCsvCli(dw.text.ToTextCli, HasInputCsvDelimiterArgs, HasInputCsvQuoteCharArgs, HasOutputCsvDelimiterArgs, HasOutputCsvQuoteCharArgs):
     
-    def __init__(self, name="cw-csv-to-csv", description="cw-csv-to-csv", *args, **kwargs):
+    def __init__(self, name="dw-csv-to-csv", description="dw-csv-to-csv", *args, **kwargs):
         
         super(ToCsvCli, self).__init__(name=name, description=description, *args, **kwargs)
         HasInputCsvDelimiterArgs.__init__(self)
@@ -362,11 +362,11 @@ class ToCsvCli(cw.text.ToTextCli, HasInputCsvDelimiterArgs, HasInputCsvQuoteChar
         HasOutputCsvQuoteCharArgs.__init__(self)
             
     def main(self, input_file="-", output_file="-",
-                   input_text_encoding=cw.DEFAULT_TEXT_ENCODING, input_text_errors=cw.DEFAULT_TEXT_ERRORS,
-                   output_text_encoding=cw.DEFAULT_TEXT_ENCODING, output_text_errors=cw.DEFAULT_TEXT_ERRORS,
-                   input_csv_delimiter=cw.DEFAULT_CSV_DELIMITER, input_csv_quotechar=cw.DEFAULT_CSV_QUOTECHAR,
-                   output_csv_delimiter=cw.DEFAULT_CSV_DELIMITER, output_csv_quotechar=cw.DEFAULT_CSV_QUOTECHAR, output_csv_quoting=cw.DEFAULT_CSV_QUOTING,
-                   log_level=cw.DEFAULT_LOG_LEVEL):
+                   input_text_encoding=dw.DEFAULT_TEXT_ENCODING, input_text_errors=dw.DEFAULT_TEXT_ERRORS,
+                   output_text_encoding=dw.DEFAULT_TEXT_ENCODING, output_text_errors=dw.DEFAULT_TEXT_ERRORS,
+                   input_csv_delimiter=dw.DEFAULT_CSV_DELIMITER, input_csv_quotechar=dw.DEFAULT_CSV_QUOTECHAR,
+                   output_csv_delimiter=dw.DEFAULT_CSV_DELIMITER, output_csv_quotechar=dw.DEFAULT_CSV_QUOTECHAR, output_csv_quoting=dw.DEFAULT_CSV_QUOTING,
+                   log_level=dw.DEFAULT_LOG_LEVEL):
         self.set_log_config(log_level=log_level)
         tocsv(input_file=input_file, output_file=output_file,
                input_text_encoding=input_text_encoding, input_text_errors=input_text_errors,
@@ -376,23 +376,23 @@ class ToCsvCli(cw.text.ToTextCli, HasInputCsvDelimiterArgs, HasInputCsvQuoteChar
         return 0
 
 def to_typed_csv(input_file="-", output_file="-",
-           input_text_encoding=cw.DEFAULT_TEXT_ENCODING, input_text_errors=cw.DEFAULT_TEXT_ERRORS,
-           output_text_encoding=cw.DEFAULT_TEXT_ENCODING, output_text_errors=cw.DEFAULT_TEXT_ERRORS,
-           input_csv_delimiter=cw.DEFAULT_CSV_DELIMITER, input_csv_quotechar=cw.DEFAULT_CSV_QUOTECHAR,
-           output_csv_delimiter=cw.DEFAULT_CSV_DELIMITER, output_csv_quotechar=cw.DEFAULT_CSV_QUOTECHAR, output_csv_quoting=cw.DEFAULT_CSV_QUOTING,
+           input_text_encoding=dw.DEFAULT_TEXT_ENCODING, input_text_errors=dw.DEFAULT_TEXT_ERRORS,
+           output_text_encoding=dw.DEFAULT_TEXT_ENCODING, output_text_errors=dw.DEFAULT_TEXT_ERRORS,
+           input_csv_delimiter=dw.DEFAULT_CSV_DELIMITER, input_csv_quotechar=dw.DEFAULT_CSV_QUOTECHAR,
+           output_csv_delimiter=dw.DEFAULT_CSV_DELIMITER, output_csv_quotechar=dw.DEFAULT_CSV_QUOTECHAR, output_csv_quoting=dw.DEFAULT_CSV_QUOTING,
            metadata_file=None):
     
     metadata = load_metadata(metadata_file)
     fieldname2deserializer, fieldname2serializer = get_field_types(metadata)
     
-    with cw.csv.open_csv_typed_dict_reader(input_file,
+    with dw.csv.open_csv_typed_dict_reader(input_file,
                                 text_encoding=input_text_encoding, text_errors=input_text_errors,
                                 csv_delimiter=input_csv_delimiter, csv_quotechar=input_csv_quotechar,
                                 fieldname2deserializer=fieldname2deserializer) as csv_dict_reader:
         
         LOGGER.info("Found input fieldnames==%s", csv_dict_reader.fieldnames)
         
-        with cw.csv.open_csv_typed_dict_writer(output_file, fieldnames=csv_dict_reader.fieldnames,
+        with dw.csv.open_csv_typed_dict_writer(output_file, fieldnames=csv_dict_reader.fieldnames,
                                     text_encoding=output_text_encoding, text_errors=output_text_errors,
                                     csv_delimiter=output_csv_delimiter, csv_quotechar=output_csv_quotechar, output_csv_quoting=output_csv_quoting,
                                     fieldname2serializer=fieldname2serializer) as csv_dict_writer:
@@ -404,7 +404,7 @@ def to_typed_csv(input_file="-", output_file="-",
 
 class ToTypedCsvCli(ToCsvCli):
     
-    def __init__(self, name="cw-csv-to-typedcsv", description="cw-csv-to-typedcsv", *args, **kwargs):
+    def __init__(self, name="dw-csv-to-typedcsv", description="dw-csv-to-typedcsv", *args, **kwargs):
         
         super(ToTypedCsvCli, self).__init__(name=name, description=description, *args, **kwargs)
         
@@ -413,12 +413,12 @@ class ToTypedCsvCli(ToCsvCli):
                                 help="metadata file of csv data [default: '{0}']".format(None))
 
     def main(self, input_file="-", output_file="-",
-                   input_text_encoding=cw.DEFAULT_TEXT_ENCODING, input_text_errors=cw.DEFAULT_TEXT_ERRORS,
-                   output_text_encoding=cw.DEFAULT_TEXT_ENCODING, output_text_errors=cw.DEFAULT_TEXT_ERRORS,
-                   input_csv_delimiter=cw.DEFAULT_CSV_DELIMITER, input_csv_quotechar=cw.DEFAULT_CSV_QUOTECHAR,
-                   output_csv_delimiter=cw.DEFAULT_CSV_DELIMITER, output_csv_quotechar=cw.DEFAULT_CSV_QUOTECHAR, output_csv_quoting=cw.DEFAULT_CSV_QUOTING,
+                   input_text_encoding=dw.DEFAULT_TEXT_ENCODING, input_text_errors=dw.DEFAULT_TEXT_ERRORS,
+                   output_text_encoding=dw.DEFAULT_TEXT_ENCODING, output_text_errors=dw.DEFAULT_TEXT_ERRORS,
+                   input_csv_delimiter=dw.DEFAULT_CSV_DELIMITER, input_csv_quotechar=dw.DEFAULT_CSV_QUOTECHAR,
+                   output_csv_delimiter=dw.DEFAULT_CSV_DELIMITER, output_csv_quotechar=dw.DEFAULT_CSV_QUOTECHAR, output_csv_quoting=dw.DEFAULT_CSV_QUOTING,
                    metadata_file=None,
-                   log_level=cw.DEFAULT_LOG_LEVEL):
+                   log_level=dw.DEFAULT_LOG_LEVEL):
         self.set_log_config(log_level=log_level)
         to_typed_csv(input_file=input_file, output_file=output_file,
                input_text_encoding=input_text_encoding, input_text_errors=input_text_errors,

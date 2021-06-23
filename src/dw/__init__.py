@@ -22,7 +22,7 @@ import os
 import sys
 import unicodedata
 
-import cw
+import dw
 
 #######################
 # Utilities for Unicode, String, Bytes
@@ -121,7 +121,7 @@ def ensure_bytes(obj, encoding=None, errors=None):
 # Constatns
 
 
-LOGGER = logging.getLogger("cw")
+LOGGER = logging.getLogger("dw")
 handler = logging.StreamHandler()
 handler.setFormatter(logging.Formatter('%(asctime)s p%(process)d %(threadName)s %(name)s %(levelname)s %(message)s (%(filename)s L%(lineno)s)'))
 LOGGER.addHandler(handler)
@@ -227,7 +227,7 @@ class AbstractArgparseCli(object):
     def parse_argv(self, argv=None):
         
         # Ensure text in case of python 2.x
-        if argv is None: argv = [cw.ensure_text(v) for v in sys.argv[1:]]
+        if argv is None: argv = [dw.ensure_text(v) for v in sys.argv[1:]]
         
         # parse
         namespace_k2v = self.arg_parser.parse_args(argv)
@@ -282,7 +282,7 @@ class HasLogConfigArg(object):
                                      choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
                                      help="set log level (DEBUG, INFO, WARNING, ERROR, CRITICAL) to logger '{0}' [default: {1}]".format(logger_name, default_loglevel))
 
-    def set_log_config(self, log_level=cw.DEFAULT_LOG_LEVEL):
+    def set_log_config(self, log_level=dw.DEFAULT_LOG_LEVEL):
         logger = logging.getLogger(self.logger_name)
         logger.setLevel(getattr(logging, log_level.upper()))
 
@@ -291,7 +291,7 @@ class BaseCli(AbstractArgparseCli, HasVersionArg, HasLogConfigArg):
     __metaclass__ = ABCMeta
     
     def __init__(self, name, description,
-                       version=cw.__version__, logger_name="cw",
+                       version=dw.__version__, logger_name="dw",
                        *args, **kwargs):
         super(BaseCli, self).__init__(name=name, description=description, *args, **kwargs)
         HasVersionArg.__init__(self, version)

@@ -1,11 +1,11 @@
-# Command-line Wrangler (CW)
+# Data Wrangler (dw)
 
-[cw](https://github.com/MountainField/cw) is a data wrangling tool for command-line interface user.
+[cw](https://github.com/MountainField/dw) is a data wrangling tool for command-line interface user.
 
 - Example
 
     ```bash
-    $ cat abc.csv | csv2markdown
+    $ cat abc.csv | dw csv to_markdown
     | a    | b    | c    |
     | ---- | ---- | ---- |
     | 1    | 1    | 1    |
@@ -13,7 +13,7 @@
     | 2    | 1    | 3    |
     | 2    | 2    | 4    |
     
-    $ cat abc.csv | cw-csv-pivot --field a --formula "sumc_c=sum(c)"
+    $ cat abc.csv | dw csv pivot --field a --formula "sumc_c=sum(c)"
     | a    | sum_c |
     | ---- | ----- |
     | 1    | 3     |
@@ -24,7 +24,7 @@
 ## Setup
 
 ```bash
-pip install git+https://github.com/MountainField/cw
+pip install git+https://github.com/MountainField/dw
 ```
 
 Author

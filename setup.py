@@ -14,28 +14,23 @@ from setuptools import setup
 if __name__ == "__main__":
     
     setup(
-        name="cw",
+        name="dw",
         version="1.0.0",
-        description="Command-line Wrangler (cw)",
+        description="Data Wrangler (dw)",
         author="Takahide Nogayama",
-        author_email="nogayama@jp.ibm.com",
-        url="https://github.ibm.com/data-science-at-command-line/cw",
-        download_url="https://github.ibm.com/data-science-at-command-line/cw/releases",
+        author_email="nogayama@gmail.com",
+        url="https://github.com/MountainField/dw",
+        download_url="https://github.com/MountainField/dw/releases",
         license="IBM",
         
         package_dir={
             '': 'src'
             },
         packages=[
-            "cw",
+            "dw",
             ],
-        package_data={
-            'cw': [
-                'completion/cw-completion.bash',
-                ],
-            },
         scripts=[
-            "scripts/cw-csv-pivot",
+            "scripts/dw",
             ],
         test_suite="tests",
     )

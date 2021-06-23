@@ -15,10 +15,10 @@ from collections import OrderedDict
 import logging
 import re
 
-import cw
+import dw
 from . import ToTypedCsvCli, gather_values_from_csv_texts
 
-LOGGER = logging.getLogger("cw")
+LOGGER = logging.getLogger("dw")
 
 
 class RowsIteratorGenerator(object):
@@ -34,10 +34,10 @@ class RowsIteratorGenerator(object):
 ################################################################################
 # Main
 def pivot(input_file="-", output_file="-",
-        input_text_encoding=cw.DEFAULT_TEXT_ENCODING, input_text_errors=cw.DEFAULT_TEXT_ERRORS,
-        output_text_encoding=cw.DEFAULT_TEXT_ENCODING, output_text_errors=cw.DEFAULT_TEXT_ERRORS,
-        input_csv_delimiter=cw.DEFAULT_CSV_DELIMITER, input_csv_quotechar=cw.DEFAULT_CSV_QUOTECHAR,
-        output_csv_delimiter=cw.DEFAULT_CSV_DELIMITER, output_csv_quotechar=cw.DEFAULT_CSV_QUOTECHAR, output_csv_quoting=cw.DEFAULT_CSV_QUOTING,
+        input_text_encoding=dw.DEFAULT_TEXT_ENCODING, input_text_errors=dw.DEFAULT_TEXT_ERRORS,
+        output_text_encoding=dw.DEFAULT_TEXT_ENCODING, output_text_errors=dw.DEFAULT_TEXT_ERRORS,
+        input_csv_delimiter=dw.DEFAULT_CSV_DELIMITER, input_csv_quotechar=dw.DEFAULT_CSV_QUOTECHAR,
+        output_csv_delimiter=dw.DEFAULT_CSV_DELIMITER, output_csv_quotechar=dw.DEFAULT_CSV_QUOTECHAR, output_csv_quoting=dw.DEFAULT_CSV_QUOTING,
         metadata_file=None,
         key_fieldnames=None, asssignment_formulas=[], before_all_statement=[]):
     
@@ -65,10 +65,10 @@ def pivot(input_file="-", output_file="-",
     
     keys2list = {}
     
-    metadata = cw.csv.load_metadata(metadata_file)
-    fieldname2deserializer, fieldname2serializer = cw.csv.get_field_types(metadata)
+    metadata = dw.csv.load_metadata(metadata_file)
+    fieldname2deserializer, fieldname2serializer = dw.csv.get_field_types(metadata)
 
-    with cw.csv.open_csv_typed_dict_reader(input_file,
+    with dw.csv.open_csv_typed_dict_reader(input_file,
                                 text_encoding=input_text_encoding, text_errors=input_text_errors,
                                 csv_delimiter=input_csv_delimiter, csv_quotechar=input_csv_quotechar,
                                 fieldname2deserializer=fieldname2deserializer) as csv_dict_reader:
@@ -104,7 +104,7 @@ def pivot(input_file="-", output_file="-",
         
         output_rows.append(output_row)
     
-    with cw.csv.open_csv_typed_dict_writer(output_file, fieldnames=output_fieldnames,
+    with dw.csv.open_csv_typed_dict_writer(output_file, fieldnames=output_fieldnames,
                                 text_encoding=output_text_encoding, text_errors=output_text_errors,
                                 csv_delimiter=output_csv_delimiter, csv_quotechar=output_csv_quotechar, output_csv_quoting=output_csv_quoting,
                                 fieldname2serializer=fieldname2serializer) as csv_dict_writer:
@@ -117,7 +117,7 @@ def pivot(input_file="-", output_file="-",
 
 class PivotCli(ToTypedCsvCli):
     
-    def __init__(self, name="cw-csv-formula", description="cw-csv-formula", *args, **kwargs):
+    def __init__(self, name="dw-csv-formula", description="dw-csv-formula", *args, **kwargs):
         
         super(PivotCli, self).__init__(name=name, description=description, *args, **kwargs)
 
@@ -134,13 +134,13 @@ class PivotCli(ToTypedCsvCli):
                                 help="statements to execute before iterating rows")
 
     def main(self, input_file="-", output_file="-",
-                   input_text_encoding=cw.DEFAULT_TEXT_ENCODING, input_text_errors=cw.DEFAULT_TEXT_ERRORS,
-                   output_text_encoding=cw.DEFAULT_TEXT_ENCODING, output_text_errors=cw.DEFAULT_TEXT_ERRORS,
-                   input_csv_delimiter=cw.DEFAULT_CSV_DELIMITER, input_csv_quotechar=cw.DEFAULT_CSV_QUOTECHAR,
-                   output_csv_delimiter=cw.DEFAULT_CSV_DELIMITER, output_csv_quotechar=cw.DEFAULT_CSV_QUOTECHAR, output_csv_quoting=cw.DEFAULT_CSV_QUOTING,
+                   input_text_encoding=dw.DEFAULT_TEXT_ENCODING, input_text_errors=dw.DEFAULT_TEXT_ERRORS,
+                   output_text_encoding=dw.DEFAULT_TEXT_ENCODING, output_text_errors=dw.DEFAULT_TEXT_ERRORS,
+                   input_csv_delimiter=dw.DEFAULT_CSV_DELIMITER, input_csv_quotechar=dw.DEFAULT_CSV_QUOTECHAR,
+                   output_csv_delimiter=dw.DEFAULT_CSV_DELIMITER, output_csv_quotechar=dw.DEFAULT_CSV_QUOTECHAR, output_csv_quoting=dw.DEFAULT_CSV_QUOTING,
                    metadata_file=None,
                    key_fieldnames=None, asssignment_formulas=[], before_all_statement=[],
-                   log_level=cw.DEFAULT_LOG_LEVEL):
+                   log_level=dw.DEFAULT_LOG_LEVEL):
         self.set_log_config(log_level=log_level)
         pivot(input_file=input_file, output_file=output_file,
             input_text_encoding=input_text_encoding, input_text_errors=input_text_errors,
