@@ -36,9 +36,7 @@ You can include this automatically when you commit a change to your local git re
 git commit -s
 ```
 
-### Procedure
-
-#### Developer not in IBM
+### Example of contribution steps
 
 1. Push `fork` button.
 2. Clone your forked repo (`git clone git@github.com:YOURNAME/cw.git`)
@@ -47,14 +45,4 @@ git commit -s
 5. Push to the branch (`git push origin main`)
 6. In `Pull requests` tab, push `New pull request` button.
 7. Push `Create pull request` button.
-
-
-#### Developer in IBM Group
-
-1. Clone this repo (`git clone git@github.com:MountainField/cw.git`)
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Add your changes (`git add MODIFIED_FILES`)
-4. Commit your changes (`git commit -s -m 'Add some feature'`)
-5. Push to the branch (`git push origin my-new-feature`)
-6. Create a new Pull Request
 
