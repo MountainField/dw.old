@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # =================================================================
@@ -9,9 +10,7 @@
 # http://opensource.org/licenses/mit-license.php
 # =================================================================
 
-def add_one(number):
-    return number + 1
-
-def main(*args) -> int:
-    print("hello dw@python")
-    return 0
+if __name__ == "__main__":
+    import sys
+    import dw
+    sys.exit(dw.main())
