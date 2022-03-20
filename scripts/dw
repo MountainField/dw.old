@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
 # -*- coding: utf-8 -*-
 
-echo "hello dw"
-# python -m dw "$@"
+python -m dw "$@"
