@@ -12,6 +12,6 @@
 def add_one(number):
     return number + 1
 
-def main(*args) -> int:
+def main() -> int:
     print("hello dw@python")
     return 0
