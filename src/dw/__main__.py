@@ -13,4 +13,4 @@
 if __name__ == "__main__":
     import sys
     import dw
-    sys.exit(dw.main())
+    sys.exit(dw.main_cli())
