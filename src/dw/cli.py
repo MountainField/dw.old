@@ -16,6 +16,7 @@ from abc import ABCMeta, abstractmethod
 import argparse
 
 from collections.abc import Iterable, Mapping, Callable
+import io
 import logging
 import os
 import sys
@@ -120,11 +121,19 @@ def add_version_arg(version: str):
     return func
 
 
-def configure_logging(log_levels=[], **kwargs):
+def configure_logging(log_levels=[], log_output_file=None):
+    if log_output_file is None or log_output_file == "stderr":
+        log_output_io = sys.stderr
+    elif log_output_file == "stdout":
+        log_output_io = sys.stdout
+    else:
+        _LOGGER.info("Opening log ouput_file=='%s' with binary write mode", log_output_file)
+        log_output_io = io.open(log_output_file, "at")
+
     if len(logging.getLogger().handlers) > 0:
         pass
     else:
-        logging.basicConfig(format=dw.DEFAULT_LOG_FORMAT, level="INFO")
+        logging.basicConfig(format=dw.DEFAULT_LOG_FORMAT, level="INFO", stream=log_output_io)
 
     for log_level in log_levels:
         if "=" not in log_level:
@@ -146,6 +155,9 @@ def add_log_args():
 
         argparse_wrapper.arg_parser.add_argument('--log-level', dest="log_levels", metavar="[NAME=]LEVEL", nargs="*", default=[],
                                 help=f"set log level for a loggger with NAME. Acceptable levels are {_acceptable_levels}")
+
+        argparse_wrapper.arg_parser.add_argument("--log-output", dest="log_output_file", metavar="FILE", nargs=None, default=None,
+                                                 help="Write log output to <FILE>. Either filename, stderr, or stdout is available. [default: stdout]")
         
         # argparse_wrapper.post_funcs.append(configure_logging)
         post_funcs = argparse_wrapper.arg_parser.get_default("post_funcs")
