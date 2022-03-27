@@ -12,7 +12,7 @@
 # https://future-architect.github.io/articles/20201223/
 from __future__ import annotations
 
-__version__="0.0.9"
+__version__="0.0.10"
 
 from collections.abc import Iterable, Mapping, Callable
 import logging
@@ -30,14 +30,14 @@ _LOGGER.setLevel(DEFAULT_LOG_LEVEL)
 
 from . import cli
 
-DW: cli.ArgparseMonad = cli.argparse_monad("dw", "data wrangler", has_sub_command=True) \
+DW_CLI: cli.ArgparseMonad = cli.argparse_monad("dw", "data wrangler", has_sub_command=True) \
                             | cli.add_version_arg(__version__) \
                             | cli.add_log_args()
 
-def main(*args: Iterable[str]) -> int:
-    return DW.argparse_wrapper.main(*args)
+def main_cli(*args: Iterable[str]) -> int:
+    return DW_CLI.argparse_wrapper.main(*args)
 
-def main_cli(*argv: Iterable[str]) -> int:
-    if not argv: argv = sys.argv[1:]
-    # logging.basicConfig(format=DEFAULT_LOG_FORMAT)
-    sys.exit(main(*argv))
+from . import bytes
+
+if __name__ == "__main__":
+    sys.exit(main_cli())

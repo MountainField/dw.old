@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # =================================================================
@@ -30,7 +29,6 @@ argcomplete=None
 
 _LOGGER: logging.Logger = logging.getLogger(__name__)
 
-
 class ArgparseWrapper:
     def __init__(self, arg_parser, sub_parsers_action=None, main_func: Callable=None):
         self.arg_parser = arg_parser
@@ -41,12 +39,16 @@ class ArgparseWrapper:
 
 
     def main(self, *args: Iterable[str]):
+        if not args: args = sys.argv[1:]
+
         arg2value = vars(self.arg_parser.parse_args(args))
 
         post_funcs = arg2value.pop("post_funcs")
         for f in post_funcs:
             arg2value_shrink = {k: arg2value[k] for k in _inspect.signature(f).parameters.keys() if k in arg2value}
             f(**arg2value_shrink)
+        
+        _LOGGER.debug("Found arg2value=='%s'", arg2value)
         
         main_func = arg2value.pop("main_func")
         arg2value_shrink = {k: arg2value[k] for k in _inspect.signature(main_func).parameters.keys() if k in arg2value}
