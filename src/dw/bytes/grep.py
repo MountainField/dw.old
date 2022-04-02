@@ -67,7 +67,7 @@ def main_str(input_file: str=None, output_file: str=None,
     if not output_file: output_file = "-"
     if not patterns: patterns = []
 
-    grep(input_file, patterns, max_count, ignore_case) > dw.bytes.to_file(output_file)
+    grep(input_file=input_file, patterns=patterns, max_count=max_count, ignore_case=ignore_case) > dw.bytes.to_file(output_file)
         
     return 0
 

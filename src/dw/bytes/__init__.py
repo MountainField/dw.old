@@ -79,6 +79,7 @@ def to_file(file=None):
 
     def func(input_iterable):
         if output_file == "-" or output_file is None:
+            _LOGGER.info("Using sys.stdout.buffer as output_file with binary write mode")
             bytes_io = sys.stdout.buffer
         elif output_file:
             if os.path.exists(output_file):

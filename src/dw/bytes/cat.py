@@ -44,11 +44,13 @@ def cat(input_files=None,
 
 ###################################################################
 def main_str(input_files: Iterable[str]=None,
-             output_file: str=None) -> int:
+             output_file: str=None,
+             add_number: bool=False,
+             ) -> int:
     if not input_files: input_files = ["-"]
     if not output_file: output_file = "-"
 
-    cat(input_files, output_file) > dw.bytes.to_file(output_file)
+    cat(input_files=input_files, add_number=add_number) > dw.bytes.to_file(output_file)
     
     return 0
 

@@ -12,7 +12,7 @@
 # https://future-architect.github.io/articles/20201223/
 from __future__ import annotations
 
-__version__="0.0.20"
+__version__="0.0.21"
 
 from collections.abc import Iterable, Mapping, Callable
 import logging
@@ -99,8 +99,25 @@ def main_cli(*args: Iterable[str]) -> int:
     return CLI.argparse_wrapper.main(*args)
 ###################################################################
 
+# @unit_func_constructor
+# def to_list():
+
+#     def func(input_iterable):
+#         def ite():
+#             sink = []
+#             for event in input_iterable:
+#                 sink.append(event)
+#                 yield event
+#         return IterableMonad(ite())
+
+#     return func
+
+###################################################################
+
 from . import bytes
 from .bytes import transform_func as transform_func_for_bytes
+
+# from . import text
 
 ###################################################################
 
