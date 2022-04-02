@@ -26,10 +26,11 @@ _LOGGER: logging.Logger = logging.getLogger(__name__)
 
 ###################################################################
 @unit_func_constructor
-def cat(files=None, add_number=False):
-    if not files: files = ["-"]
+def cat(input_files=None,
+        add_number=False):
+    if not input_files: input_files = ["-"]
     
-    @transform_func(*files)
+    @transform_func(*input_files)
     def func(input_iterable):
         # Main
         if add_number:
@@ -47,8 +48,8 @@ def main_str(input_files: Iterable[str]=None,
     if not input_files: input_files = ["-"]
     if not output_file: output_file = "-"
 
-    cat(input_files) > dw.bytes.to_stdout()
-        
+    cat(input_files, output_file) > dw.bytes.to_file(output_file)
+    
     return 0
 
 ###################################################################
@@ -59,8 +60,7 @@ CLI: dw.ArgparseMonad = dw.cli.argparse_monad("cat", "concat files", sub_command
                                 | dw.cli.add_output_file_args()
 
 if __name__ == "__main__":
-    if True: # Debug
+    if False: # Debug
         cat(["tmp/abc"]) > dw.bytes.to_stdout()
-        
         sys.exit()
     sys.exit(CLI.argparse_wrapper.main())

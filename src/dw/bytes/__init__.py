@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import io
 import logging
+from multiprocessing.sharedctypes import Value
 import os
 import sys
 
@@ -28,6 +29,7 @@ _LOGGER: logging.Logger = logging.getLogger(__name__)
 
 def _byte_read_iterable(input_file=None):
     if input_file == "-" or input_file is None:
+        _LOGGER.info("Using sys.stdin.buffer as input_file with binary read mode")
         bytes_io = sys.stdin.buffer
     elif input_file:
         if not os.path.exists(input_file):
@@ -80,7 +82,7 @@ def to_file(file=None):
             bytes_io = sys.stdout.buffer
         elif output_file:
             if os.path.exists(output_file):
-                raise ValueError(f"output_file=='{output_file}' exists")
+                _LOGGER.warning("output_file=='%s' exists. Overwrite it.")
             _LOGGER.info("Opening output_file=='%s' with binary write mode", output_file)
             bytes_io = io.open(output_file, "wb")
         else:

@@ -26,14 +26,14 @@ _LOGGER: logging.Logger = logging.getLogger(__name__)
 
 ###################################################################
 @unit_func_constructor
-def grep(file=None, patterns=None):
+def grep(input_file=None, patterns=None):
     if not input_file: input_file = "-"
     if not patterns: patterns = []
     for pattern in patterns:
         if not isinstance(pattern, bytes):
             raise ValueError("pattern must be bytes object")
     
-    @transform_func(file)
+    @transform_func(input_file)
     def func(input_iterable):
         # Main
         if patterns:
@@ -60,7 +60,7 @@ def main_str(input_file: str=None, output_file: str=None,
     if not output_file: output_file = "-"
     if not patterns: patterns = []
 
-    grep(input_file, patterns) > dw.bytes.to_stdout()
+    grep(input_file, patterns) > dw.bytes.to_file(output_file)
         
     return 0
 
