@@ -12,7 +12,7 @@
 # https://future-architect.github.io/articles/20201223/
 from __future__ import annotations
 
-__version__="0.0.13"
+__version__="0.0.14"
 
 from collections.abc import Iterable, Mapping, Callable
 import logging
@@ -91,12 +91,11 @@ def unit_func_constructor(constructor_func):
 
 from . import cli
 
-DW_CLI: cli.ArgparseMonad = cli.argparse_monad("dw", "data wrangler", has_sub_command=True) \
-                            | cli.add_version_arg(__version__) \
-                            | cli.add_log_args()
+CLI: cli.ArgparseMonad = cli.argparse_monad("dw", "data wrangler", has_sub_command=True) \
+                            | cli.add_version_arg(__version__)
 
 def main_cli(*args: Iterable[str]) -> int:
-    return DW_CLI.argparse_wrapper.main(*args)
+    return CLI.argparse_wrapper.main(*args)
 
 from . import bytes
 from .bytes import transform_func as transform_func_for_bytes

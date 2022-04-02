@@ -18,6 +18,7 @@ import logging
 import os
 import sys
 
+import dw
 from dw import IterableMonad, unit_func_constructor
 
 # Logger
@@ -122,7 +123,8 @@ def argparse_action_for_bytes_list(dest):
     return BytesAction
 
 
-
+CLI: dw.cli.ArgparseMonad = dw.cli.argparse_monad("bytes", "Sub command for byte file without text encoding.", sub_command_of=dw.CLI, has_sub_command=True) \
+                            | dw.cli.add_version_arg(dw.__version__)
 
 from . import cat
 from . import grep

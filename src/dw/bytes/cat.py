@@ -19,6 +19,7 @@ import sys
 import dw
 from dw import IterableMonad, unit_func_constructor
 from dw.bytes import transform_func
+from dw.bytes import CLI as DW_BYTES_CLI
 
 # Logger
 _LOGGER: logging.Logger = logging.getLogger(__name__)
@@ -47,11 +48,11 @@ def main_str(input_files: Iterable[str]=None,
         
     return 0
 
-DW_CAT_CLI: dw.ArgparseMonad = dw.cli.argparse_monad("cat", "concat files", sub_command_of=dw.DW_CLI, main_func=main_str) \
+CLI: dw.ArgparseMonad = dw.cli.argparse_monad("cat", "concat files", sub_command_of=DW_BYTES_CLI, main_func=main_str) \
                                 | dw.cli.add_version_arg(dw.__version__) \
                                 | dw.cli.add_log_args() \
                                 | dw.cli.add_input_files_args() \
                                 | dw.cli.add_output_file_args()
 
 if __name__ == "__main__":
-    sys.exit(DW_CAT_CLI.argparse_wrapper.main())
+    sys.exit(CLI.argparse_wrapper.main())

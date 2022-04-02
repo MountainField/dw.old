@@ -19,6 +19,7 @@ import re
 import dw
 from dw import IterableMonad, unit_func_constructor
 from dw.bytes import transform_func, argparse_action_for_bytes_list
+from dw.bytes import CLI as DW_BYTES_CLI
 
 # Logger
 _LOGGER: logging.Logger = logging.getLogger(__name__)
@@ -71,7 +72,7 @@ def add_patterns_args():
     return func
 
 
-CLI: dw.cli.ArgparseMonad = dw.cli.argparse_monad("grep", "print lines that match patterns", aliases=["filter"], sub_command_of=dw.DW_CLI, main_func=main_str) \
+CLI: dw.cli.ArgparseMonad = dw.cli.argparse_monad("grep", "print lines that match patterns", aliases=["filter"], sub_command_of=DW_BYTES_CLI, main_func=main_str) \
                                 | dw.cli.add_version_arg(dw.__version__) \
                                 | dw.cli.add_log_args() \
                                 | dw.cli.add_input_file_args() \
