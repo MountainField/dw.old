@@ -12,6 +12,7 @@
 # https://future-architect.github.io/articles/20201223/
 from __future__ import annotations
 
+import argparse
 import io
 import logging
 import os
@@ -97,4 +98,32 @@ def to_file(file=None):
 def to_stdout():
     return to_file(file="-")
 
+
+
+def argparse_action_for_bytes(dest):
+
+    class BytesAction(argparse.Action):
+
+        def __call__(self, parser, args, str_value, option_string=None):
+            bytes_value = str_value.encode('latin1')  # => Just convert from str to bytes
+            setattr(args, dest, bytes_value)
+
+    return BytesAction
+
+
+def argparse_action_for_bytes_list(dest):
+
+    class BytesAction(argparse.Action):
+
+        def __call__(self, parser, args, str_values, option_string=None):
+            bytes_values = [str_value.encode('latin1') for str_value in str_values]
+            setattr(args, dest, bytes_values)
+
+    return BytesAction
+
+
+
+
 from . import cat
+from . import grep
+from . import grep as filter
