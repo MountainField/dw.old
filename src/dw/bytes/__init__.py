@@ -24,6 +24,7 @@ from dw import IterableMonad, unit_func_constructor
 # Logger
 _LOGGER: logging.Logger = logging.getLogger(__name__)
 
+###################################################################
 
 def _byte_read_iterable(input_file=None):
     if input_file == "-" or input_file is None:
@@ -50,6 +51,7 @@ def read_iterable(*input_files):
         bytes_io = _byte_read_iterable(input_file)
         for b in bytes_io:
             yield b
+###################################################################
 
 # def unit_func(file):
 def transform_func(*input_files):
@@ -100,6 +102,7 @@ def to_stdout():
     return to_file(file="-")
 
 
+###################################################################
 
 def argparse_action_for_bytes(dest):
 
@@ -125,7 +128,12 @@ def argparse_action_for_bytes_list(dest):
 
 CLI: dw.cli.ArgparseMonad = dw.cli.argparse_monad("bytes", "Sub command for byte file without text encoding.", sub_command_of=dw.CLI, has_sub_command=True) \
                             | dw.cli.add_version_arg(dw.__version__)
+###################################################################
 
 from . import cat
 from . import grep
 from . import grep as filter
+
+###################################################################
+if __name__ == "__main__":
+    sys.exit(CLI.argparse_wrapper.main())

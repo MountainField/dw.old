@@ -24,6 +24,7 @@ from dw.bytes import CLI as DW_BYTES_CLI
 # Logger
 _LOGGER: logging.Logger = logging.getLogger(__name__)
 
+###################################################################
 @unit_func_constructor
 def cat(files=None, add_number=False):
     if not files: files = ["-"]
@@ -40,6 +41,7 @@ def cat(files=None, add_number=False):
         return input_iterable
     return func
 
+###################################################################
 def main_str(input_files: Iterable[str]=None,
              output_file: str=None) -> int:
     if not input_files: input_files = ["-"]
@@ -49,6 +51,7 @@ def main_str(input_files: Iterable[str]=None,
         
     return 0
 
+###################################################################
 CLI: dw.ArgparseMonad = dw.cli.argparse_monad("cat", "concat files", sub_command_of=DW_BYTES_CLI, main_func=main_str) \
                                 | dw.cli.add_version_arg(dw.__version__) \
                                 | dw.cli.add_log_args() \

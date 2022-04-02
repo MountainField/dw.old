@@ -12,7 +12,7 @@
 # https://future-architect.github.io/articles/20201223/
 from __future__ import annotations
 
-__version__="0.0.15"
+__version__="0.0.16"
 
 from collections.abc import Iterable, Mapping, Callable
 import logging
@@ -29,6 +29,7 @@ DEFAULT_LOG_OUTPUT: str = os.environ.get('DW_LOG_OUTPUT', 'stdout')
 _LOGGER: logging.Logger = logging.getLogger(__name__)
 _LOGGER.setLevel(DEFAULT_LOG_LEVEL)
 
+###################################################################
 
 def consume(iterable):
     for _ in iterable:
@@ -88,6 +89,7 @@ def unit_func_constructor(constructor_func):
 
     return wrapper
 
+###################################################################
 
 from . import cli
 
@@ -96,10 +98,12 @@ CLI: cli.ArgparseMonad = cli.argparse_monad("dw", "data wrangler", has_sub_comma
 
 def main_cli(*args: Iterable[str]) -> int:
     return CLI.argparse_wrapper.main(*args)
+###################################################################
 
 from . import bytes
 from .bytes import transform_func as transform_func_for_bytes
 
+###################################################################
 
 if __name__ == "__main__":
     sys.exit(main_cli())

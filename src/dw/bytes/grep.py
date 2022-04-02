@@ -24,8 +24,10 @@ from dw.bytes import CLI as DW_BYTES_CLI
 # Logger
 _LOGGER: logging.Logger = logging.getLogger(__name__)
 
+###################################################################
 @unit_func_constructor
-def grep(file, patterns=None):
+def grep(file=None, patterns=None):
+    if not input_file: input_file = "-"
     if not patterns: patterns = []
     for pattern in patterns:
         if not isinstance(pattern, bytes):
@@ -50,6 +52,7 @@ def grep(file, patterns=None):
         return input_iterable
     return func
 
+###################################################################
 def main_str(input_file: str=None, output_file: str=None,
             patterns=None,
             ) -> int:
@@ -61,7 +64,7 @@ def main_str(input_file: str=None, output_file: str=None,
         
     return 0
 
-
+###################################################################
 def add_patterns_args():
     def func(argparse_wrapper):
         argparse_wrapper.arg_parser.add_argument('-e', '--pattern', '--regexp', dest="patterns", metavar="PATTERNS",
