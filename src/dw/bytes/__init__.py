@@ -82,7 +82,7 @@ def to_file(file=None):
             bytes_io = sys.stdout.buffer
         elif output_file:
             if os.path.exists(output_file):
-                _LOGGER.warning("output_file=='%s' exists. Overwrite it.")
+                _LOGGER.warning("Found output_file=='%s' exists. Overwrite it.", output_file)
             _LOGGER.info("Opening output_file=='%s' with binary write mode", output_file)
             bytes_io = io.open(output_file, "wb")
         else:

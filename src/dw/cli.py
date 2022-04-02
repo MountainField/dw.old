@@ -49,7 +49,7 @@ class ArgparseWrapper:
             arg2value_shrink = {k: arg2value[k] for k in _inspect.signature(f).parameters.keys() if k in arg2value}
             f(**arg2value_shrink)
         
-        _LOGGER.debug("Found arg2value=='%s'", arg2value)
+        _LOGGER.debug("Found arg2value=='%s'", {k: v for k, v in arg2value.items() if k !="main_func"})
         
         main_func = arg2value.pop("main_func")
         arg2value_shrink = {k: arg2value[k] for k in _inspect.signature(main_func).parameters.keys() if k in arg2value}
