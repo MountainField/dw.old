@@ -12,7 +12,7 @@
 # https://future-architect.github.io/articles/20201223/
 from __future__ import annotations
 
-__version__="0.0.14"
+__version__="0.0.15"
 
 from collections.abc import Iterable, Mapping, Callable
 import logging
