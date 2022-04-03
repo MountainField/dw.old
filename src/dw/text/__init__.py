@@ -27,32 +27,39 @@ _LOGGER: logging.Logger = logging.getLogger(__name__)
 
 ###################################################################
 
-def _byte_read_iterable(input_file=None):
+def _text_read_iterable(input_file=None,
+                        encoding=None, errors=None, newline=None):
+
     if input_file == "-" or input_file is None:
-        _LOGGER.info("Using sys.stdin.buffer as input_file with binary read mode")
-        bytes_io = sys.stdin.buffer
+        if encoding == sys.stdin.encoding:
+            _LOGGER.info("Using sys.stdin as input_file with text read mode")
+            text_io = sys.stdin
+        else:
+            _LOGGER.info("Wrapping sys.stdin.buffer as input_file with text read mode")
+            text_io = io.TextIOWrapper(sys.stdin.buffer, encoding=encoding, newline=newline, errors=errors)
     elif input_file:
         if not os.path.exists(input_file):
             raise ValueError(f"input_file=='{input_file}' does not exist")
-        _LOGGER.info("Opening input_file=='%s' with binary read mode", input_file)
-        bytes_io = io.open(input_file, "rb")
+        _LOGGER.info("Opening input_file=='%s' with text read mode", input_file)
+        text_io = io.open(input_file, mode="rt", encoding=encoding, newline=newline, errors=errors)
     else:
         raise ValueError()
     try:
-        for b in bytes_io:
-            yield b
+        for t in text_io:
+            yield t
     finally:
-        if bytes_io != sys.stdin.buffer:
+        if text_io != sys.stdin:
             _LOGGER.info("Closing input_file=='%s'", input_file)
-            bytes_io.close()
+            text_io.close()
 
 def read_iterable(*input_files):
     if not input_files:
         input_files = ["-"]
     for input_file in input_files:
-        bytes_io = _byte_read_iterable(input_file)
-        for b in bytes_io:
+        text_io = _text_read_iterable(input_file)
+        for b in text_io:
             yield b
+
 ###################################################################
 
 # def unit_func(file):
@@ -74,29 +81,34 @@ def transform_func(*input_files):
     return _deco
 
 @unit_func_constructor
-def to_file(file=None):
+def to_file(file=None,
+            encoding=None, errors=None, newline=None):
     output_file = file
 
     def func(input_iterable):
         if output_file == "-" or output_file is None:
-            _LOGGER.info("Using sys.stdout.buffer as output_file with binary write mode")
-            bytes_io = sys.stdout.buffer
+            if encoding == sys.stdout.encoding:
+                _LOGGER.info("Using sys.stdout as output_file with text write mode")
+                text_io = sys.stdout
+            else:
+                _LOGGER.info("Wrapping sys.stdout.buffer as output_file with text read mode")
+                text_io = io.TextIOWrapper(sys.stdout.buffer, encoding=encoding, newline=newline, errors=errors)
         elif output_file:
             if os.path.exists(output_file):
                 _LOGGER.warning("Found output_file=='%s' exists. Overwrite it.", output_file)
-            _LOGGER.info("Opening output_file=='%s' with binary write mode", output_file)
-            bytes_io = io.open(output_file, "wb")
+            _LOGGER.info("Opening output_file=='%s' with text write mode", output_file)
+            text_io = io.open(output_file, mode="wt", encoding=encoding, newline=newline, errors=errors)
         else:
             raise ValueError()
         def ite():
             try:
-                for b in input_iterable:
-                    bytes_io.write(b)
-                    yield b
+                for t in input_iterable:
+                    text_io.write(t)
+                    yield t
             finally:
-                if bytes_io != sys.stdout.buffer:
+                if text_io != sys.stdout:
                     _LOGGER.info("Closing output_file=='%s'", output_file)
-                    bytes_io.close()
+                    text_io.close()
         return IterableMonad(ite())
 
     return func
@@ -107,35 +119,13 @@ def to_stdout():
 
 ###################################################################
 
-def argparse_action_for_bytes(dest):
-
-    class BytesAction(argparse.Action):
-
-        def __call__(self, parser, args, str_value, option_string=None):
-            bytes_value = str_value.encode('latin1')  # => Just convert from str to bytes
-            setattr(args, dest, bytes_value)
-
-    return BytesAction
-
-
-def argparse_action_for_bytes_list(dest):
-
-    class BytesAction(argparse.Action):
-
-        def __call__(self, parser, args, str_values, option_string=None):
-            bytes_values = [str_value.encode('latin1') for str_value in str_values]
-            setattr(args, dest, bytes_values)
-
-    return BytesAction
-
-
-CLI: dw.cli.ArgparseMonad = dw.cli.argparse_monad("bytes", "Sub command for byte file without text encoding.", sub_command_of=dw.CLI, has_sub_command=True) \
+CLI: dw.cli.ArgparseMonad = dw.cli.argparse_monad("text", "Sub command for text file with text encoding.", sub_command_of=dw.CLI, has_sub_command=True) \
                             | dw.cli.add_version_arg(dw.__version__)
 ###################################################################
 
 from . import cat
-from . import grep
-from . import grep as filter
+# from . import grep
+# from . import grep as filter
 
 ###################################################################
 if __name__ == "__main__":

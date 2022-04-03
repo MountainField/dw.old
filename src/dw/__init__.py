@@ -12,7 +12,7 @@
 # https://future-architect.github.io/articles/20201223/
 from __future__ import annotations
 
-__version__="0.0.21"
+__version__="0.0.22"
 
 from collections.abc import Iterable, Mapping, Callable
 import logging
@@ -117,7 +117,7 @@ def main_cli(*args: Iterable[str]) -> int:
 from . import bytes
 from .bytes import transform_func as transform_func_for_bytes
 
-# from . import text
+from . import text
 
 ###################################################################
 
