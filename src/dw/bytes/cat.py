@@ -18,7 +18,7 @@ import sys
 
 import dw
 from dw import IterableMonad, unit_func_constructor
-from dw.bytes import transform_func
+from dw.bytes import iterable_to_read_bytes
 from dw.bytes import CLI as DW_BYTES_CLI
 
 # Logger
@@ -30,8 +30,16 @@ def cat(input_files=None,
         add_number=False):
     if not input_files: input_files = ["-"]
     
-    @transform_func(*input_files)
     def func(input_iterable):
+
+        if input_files: # Initialize or reset iterable chain 
+            input_iterable = iterable_to_read_bytes(*input_files)
+        else:
+            if input_iterable is None: # Initialize head of iterable chain
+                input_iterable = iterable_to_read_bytes("-")
+            else: # Connect new iterable to input_iterable. do not replace it
+                pass
+        
         # Main
         if add_number:
             input_iterable_bk = input_iterable
@@ -39,19 +47,15 @@ def cat(input_files=None,
                 for idx, b in enumerate(input_iterable_bk):
                     yield (b"%6i\t" % idx) + b
             return ite()
-        return input_iterable
+        return IterableMonad(input_iterable)
     return func
 
 ###################################################################
-def main_str(input_files: Iterable[str]=None,
-             output_file: str=None,
-             add_number: bool=False,
-             ) -> int:
+def main_str(input_files: Iterable[str]=None, output_file: str=None,
+             add_number: bool=False) -> int:
     if not input_files: input_files = ["-"]
     if not output_file: output_file = "-"
-
     cat(input_files=input_files, add_number=add_number) > dw.bytes.to_file(output_file)
-    
     return 0
 
 ###################################################################

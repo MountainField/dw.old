@@ -1,3 +1,4 @@
+from cgitb import text
 import collections
 import io
 import itertools
@@ -55,7 +56,7 @@ if False:
     for line in concat_iter:
         print(line)
 
-if True:
+if False:
 
     class Maybe(object):
         
@@ -633,4 +634,151 @@ if True:
         for line in m:
             print(line)
 
+###################
+if False:
+    import io
+    bytes_io = io.open("tmp/abc", "rb")
+    try:
+        for b in bytes_io:
+            print(b)
+    finally:
+        bytes_io.close()
+    
+if False:
+    import io
+    bytes_io = io.open("tmp/abc", "rb")
+    text_io = io.TextIOWrapper(bytes_io, encoding="utf-8")
 
+    try:
+        for t in text_io:
+            print(t)
+    finally:
+        text_io.close()
+
+if False:
+    import io
+    def bytes_iterable():
+        bytes_io = io.open("tmp/abc", "rb")
+        try:
+            for b in bytes_io:
+                yield b
+        finally:
+            bytes_io.close()
+    ite = bytes_iterable()
+    for b in ite:
+        print(b)
+
+
+if False:
+    import io
+    def bytes_iterable():
+        bytes_io = io.open("tmp/abc", "rb")
+        try:
+            for b in bytes_io:
+                yield b
+        finally:
+            bytes_io.close()
+    ite = bytes_iterable()
+    text_io = io.TextIOWrapper(ite, encoding="utf-8")
+    for b in ite:
+        print(b)
+    # => Error!!
+
+if False:
+    import io
+
+    class ClosableWrapper:
+        def __init__(self, closeable):
+            self.closeable = closeable
+        
+        # for with statements
+        def __enter__(self):
+            print("__ ClosableWrapper: entering")
+            return self
+        def __exit__(self, exc_type, exc_value, traceback):
+            print("__ ClosableWrapper: exiting")
+            self.close()
+            if getattr(self.closeable, "__exit__", None):
+                self.closeable.__exit__(exc_type, exc_value, traceback)
+        
+        def close(self):
+            print("__ ClosableWrapper: closing")
+            if getattr(self.closeable, "close", None):
+                print("closing closable")
+                self.closeable.close()
+
+    class IteratorWrapper:
+        def __init__(self, iter):
+            self.iter = iter
+
+        # iterable
+        def __iter__(self):
+            return self
+        def __next__(self):
+            return next(self.iter)
+        next = __next__ #=> for python2 compatibility
+
+        # method missing
+        # def __getattr__(self, name ):
+        #     print("called attr=", name)
+        #     def _method_missing(*args):
+        #         print("not found")
+        #         return args
+        #     return getattr(self.iter, name, _method_missing)
+
+    
+    class CloseableIteratorWrapper(IteratorWrapper, ClosableWrapper):
+        def __init__(self, iter):
+            IteratorWrapper.__init__(self, iter)
+            ClosableWrapper.__init__(self, iter)
+    
+    bytes_io = io.open("tmp/abc", "rb")
+    ite = CloseableIteratorWrapper(bytes_io)
+    with ite:
+        for b in ite:
+            print(b)
+
+if False:
+    # メソッド付きジェネレータ
+    class Foo(object):
+        def __init__(self):
+            self.j = None
+        def __iter__(self):
+            for i in range(10):
+                self.j = 10 - i
+                yield i
+
+    my_generator = Foo()
+
+    for k in my_generator:
+        print('j is',my_generator.j)
+        print('k is',k)
+
+if True:
+    import io
+    class AutoCloseWrapper:
+        def __init__(self, io_obj):
+            if not getattr(io_obj, "close", None):
+                raise ValueError("io_obj must have close method")
+            self.io_obj = io_obj
+        def __iter__(self):
+            try:
+                for event in self.io_obj:
+                    yield event
+            finally:
+                self.io_obj.close()
+        
+        # method missing
+        def __getattr__(self, name):
+            print("called attr=", name)
+            return getattr(self.io_obj, name)
+
+    ite = io.open("tmp/abc", "rb")
+    # ite = AutoCloseWrapper(sys.stdin.buffer)
+    text_io = io.TextIOWrapper(ite, encoding="utf-8")
+    text_io = AutoCloseWrapper(text_io)
+    try:
+        for b in text_io:
+            sys.stdout.write(b)
+    finally:
+        text_io.close()

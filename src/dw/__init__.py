@@ -12,7 +12,7 @@
 # https://future-architect.github.io/articles/20201223/
 from __future__ import annotations
 
-__version__="0.0.22"
+__version__="0.0.23"
 
 from collections.abc import Iterable, Mapping, Callable
 import logging
@@ -27,6 +27,23 @@ DEFAULT_LOG_OUTPUT: str = os.environ.get('DW_LOG_OUTPUT', 'stdout')
 
 # Logger
 _LOGGER: logging.Logger = logging.getLogger(__name__)
+###################################################################
+class AutoCloseWrapper:
+    def __init__(self, io_obj):
+        if not getattr(io_obj, "close", None):
+            raise ValueError("io_obj must have close method")
+        self.io_obj = io_obj
+    def __iter__(self):
+        try:
+            for event in self.io_obj:
+                yield event
+        finally:
+            self.io_obj.close()
+    
+    # method missing
+    def __getattr__(self, name):
+        print("called attr=", name)
+        return getattr(self.io_obj, name)
 
 ###################################################################
 
@@ -115,8 +132,6 @@ def main_cli(*args: Iterable[str]) -> int:
 ###################################################################
 
 from . import bytes
-from .bytes import transform_func as transform_func_for_bytes
-
 from . import text
 
 ###################################################################

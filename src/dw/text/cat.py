@@ -18,7 +18,7 @@ import sys
 
 import dw
 from dw import IterableMonad, unit_func_constructor
-from dw.text import transform_func
+from dw.text import iterable_to_read_text
 from dw.text import CLI as DW_TEXT_CLI
 
 # Logger
@@ -30,16 +30,25 @@ def cat(input_files=None,
         add_number=False):
     if not input_files: input_files = ["-"]
     
-    @transform_func(*input_files)
     def func(input_iterable):
+        
+        if input_files: # Initialize or reset iterable chain 
+            input_iterable = iterable_to_read_text(*input_files)
+        else:
+            if input_iterable is None: # Initialize head of iterable chain
+                input_iterable = iterable_to_read_text("-")
+            else: # Connect new iterable to input_iterable. do not replace it
+                pass
+        
         # Main
+        ans = input_iterable
         if add_number:
             input_iterable_bk = input_iterable
             def ite():
                 for idx, t in enumerate(input_iterable_bk):
                     yield ("%6i\t" % idx) + t
-            return ite()
-        return input_iterable
+            ans = ite()
+        return IterableMonad(ans)
     return func
 
 ###################################################################

@@ -20,65 +20,58 @@ import os
 import sys
 
 import dw
-from dw import IterableMonad, unit_func_constructor
+from dw import AutoCloseWrapper, IterableMonad, unit_func_constructor
 
 # Logger
 _LOGGER: logging.Logger = logging.getLogger(__name__)
 
 ###################################################################
 
-def _text_read_iterable(input_file=None,
+def _iterable_to_read_text(input_file=None,
                         encoding=None, errors=None, newline=None):
 
     if input_file == "-" or input_file is None:
+        # TODO: check encoding normalization
         if encoding == sys.stdin.encoding:
             _LOGGER.info("Using sys.stdin as input_file with text read mode")
             text_io = sys.stdin
         else:
             _LOGGER.info("Wrapping sys.stdin.buffer as input_file with text read mode")
-            text_io = io.TextIOWrapper(sys.stdin.buffer, encoding=encoding, newline=newline, errors=errors)
-    elif input_file:
-        if not os.path.exists(input_file):
-            raise ValueError(f"input_file=='{input_file}' does not exist")
+            text_io = AutoCloseWrapper(io.TextIOWrapper(sys.stdin.buffer, encoding=encoding, newline=newline, errors=errors))
+    elif os.path.exists(input_file):
         _LOGGER.info("Opening input_file=='%s' with text read mode", input_file)
-        text_io = io.open(input_file, mode="rt", encoding=encoding, newline=newline, errors=errors)
+        text_io = AutoCloseWrapper(io.open(input_file, mode="rt", encoding=encoding, newline=newline, errors=errors))
     else:
-        raise ValueError()
-    try:
-        for t in text_io:
-            yield t
-    finally:
-        if text_io != sys.stdin:
-            _LOGGER.info("Closing input_file=='%s'", input_file)
-            text_io.close()
+        raise ValueError(f"input_file=='{input_file}' does not exist")
+    return text_io
 
-def read_iterable(*input_files):
+def iterable_to_read_text(*input_files):
     if not input_files:
         input_files = ["-"]
     for input_file in input_files:
-        text_io = _text_read_iterable(input_file)
+        text_io = _iterable_to_read_text(input_file)
         for b in text_io:
             yield b
 
 ###################################################################
 
 # def unit_func(file):
-def transform_func(*input_files):
-    input_files = [x for x in input_files if x] # reduce None and empty str
+# def transform_func(*input_files):
+#     input_files = [x for x in input_files if x] # reduce None and empty str
 
-    def _deco(transform_func):
-        def wrapper(input_iterable, *args, **kwargs):
-            # Replace or not replace the input iterable
-            if input_files: # Initialize or reset iterable chain 
-                input_iterable = read_iterable(*input_files)
-            else:
-                if input_iterable is None: # Initialize head of iterable chain
-                    input_iterable = read_iterable("-")
-                else: # Connect new iterable to input_iterable. do not replace it
-                    pass
-            return IterableMonad(transform_func(input_iterable, *args, **kwargs))
-        return wrapper
-    return _deco
+#     def _deco(transform_func):
+#         def wrapper(input_iterable, *args, **kwargs):
+#             # Replace or not replace the input iterable
+#             if input_files: # Initialize or reset iterable chain 
+#                 input_iterable = iterable_to_read_text(*input_files)
+#             else:
+#                 if input_iterable is None: # Initialize head of iterable chain
+#                     input_iterable = iterable_to_read_text("-")
+#                 else: # Connect new iterable to input_iterable. do not replace it
+#                     pass
+#             return IterableMonad(transform_func(input_iterable, *args, **kwargs))
+#         return wrapper
+#     return _deco
 
 @unit_func_constructor
 def to_file(file=None,

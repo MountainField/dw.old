@@ -18,7 +18,7 @@ import re
 
 import dw
 from dw import IterableMonad, unit_func_constructor
-from dw.bytes import transform_func, argparse_action_for_bytes_list
+from dw.bytes import iterable_to_read_bytes, argparse_action_for_bytes_list
 from dw.bytes import CLI as DW_BYTES_CLI
 
 # Logger
@@ -36,15 +36,22 @@ def grep(input_file=None, patterns=None, max_count=None, ignore_case=False):
     if ignore_case:
         regexp_flag = regexp_flag | re.IGNORECASE
     
-    @transform_func(input_file)
     def func(input_iterable):
+        ans = input_iterable
+        if input_file: # Initialize or reset iterable chain 
+            input_iterable = iterable_to_read_bytes(input_file)
+        else:
+            if input_iterable is None: # Initialize head of iterable chain
+                input_iterable = iterable_to_read_bytes("-")
+            else: # Connect new iterable to input_iterable. do not replace it
+                pass
+        
         # Main
         if patterns:
             regex_patterns = [re.compile(pattern, flags=regexp_flag) for pattern in patterns if pattern]
-            input_iterable_bk = input_iterable
             def ite():
                 count = 0
-                for idx, b in enumerate(input_iterable_bk):
+                for idx, b in enumerate(input_iterable):
                     print_this_line = False
                     for regex_pattern in regex_patterns:
                         if regex_pattern.search(b):
@@ -55,8 +62,9 @@ def grep(input_file=None, patterns=None, max_count=None, ignore_case=False):
                         yield b
                     if max_count and count >= max_count:
                         break
-            return ite()
-        return input_iterable
+            ans = ite()
+        
+        return IterableMonad(ans)
     return func
 
 ###################################################################
