@@ -26,24 +26,24 @@ _LOGGER: logging.Logger = logging.getLogger(__name__)
 
 ###################################################################
 
-def _iterable_to_read_bytes(input_file=None):
+def _iterable_to_read_bytes(input_file=None, get_default=None):
     if input_file == "-" or input_file is None:
         _LOGGER.info("Using sys.stdin.buffer as input_file with binary read mode")
-        bytes_io = sys.stdin.buffer
+        bytes_io = get_default()
     elif os.path.exists(input_file):
         _LOGGER.info("Opening input_file=='%s' with binary read mode", input_file)
-        bytes_io = AutoCloseWrapper(io.open(input_file, "rb"))
+        bytes_io = io.open(input_file, "rb")
     else:
         raise ValueError(f"input_file=='{input_file}' does not exist")
     return bytes_io
 
-def iterable_to_read_bytes(*input_files):
+def iterable_to_read_bytes(*input_files, get_default=None):
+    if get_default is None: raise ValueError("default io creater function is required")
     if not input_files:
         input_files = ["-"]
-    for input_file in input_files:
-        bytes_io = _iterable_to_read_bytes(input_file)
-        for b in bytes_io:
-            yield b
+    bytes_ios = [_iterable_to_read_bytes(input_file, get_default) for input_file in input_files]
+    return AutoCloseWrapper(*bytes_ios)
+
 ###################################################################
 
 # def unit_func(file):
@@ -68,7 +68,7 @@ def iterable_to_read_bytes(*input_files):
 def to_file(file=None):
     output_file = file
 
-    def func(input_iterable):
+    def func(input_iterable, context):
         if output_file == "-" or output_file is None:
             _LOGGER.info("Using sys.stdout.buffer as output_file with binary write mode")
             bytes_io = sys.stdout.buffer
@@ -88,11 +88,12 @@ def to_file(file=None):
                 if bytes_io != sys.stdout.buffer:
                     _LOGGER.info("Closing output_file=='%s'", output_file)
                     bytes_io.close()
-        return IterableMonad(ite())
+        return IterableMonad(ite(), context)
     return func
 
 def to_stdout():
     return to_file(file="-")
+
 
 
 ###################################################################

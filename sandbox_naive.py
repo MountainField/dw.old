@@ -1,14 +1,12 @@
-from cgitb import text
+
 import collections
 import io
 import itertools
 import logging
-from multiprocessing.sharedctypes import Value
 import sys
 from typing import Iterable
 logging.getLogger().setLevel("DEBUG")
-
-import dw
+from collections.abc import Iterable, Mapping, Callable
 
 # dw.main() #=> help
 
@@ -754,7 +752,7 @@ if False:
         print('j is',my_generator.j)
         print('k is',k)
 
-if True:
+if False:
     import io
     class AutoCloseWrapper:
         def __init__(self, io_obj):
@@ -782,3 +780,46 @@ if True:
             sys.stdout.write(b)
     finally:
         text_io.close()
+
+if False:
+    from dataclasses import dataclass
+    
+    
+    @dataclass
+    class Object:
+        x: str ='X'
+        prop: Mapping[str, any]={}
+        
+    obj = Object()
+    obj.y=10
+    print(repr(obj))
+
+if True:
+    from dataclasses import dataclass
+    
+
+    class MyClass:
+        def __init__(self):
+            self.x: str="X"
+        
+        def __hash__(self):
+            return hash(tuple(sorted(self.__dict__.items())))
+        
+        def __eq__(self, other):
+            return self.__dict__ == other.__dict__ # you might want to add some type checking here
+            
+        def __repr__(self):
+            kws = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+            return "{}({})".format(type(self).__name__, ", ".join(kws))
+        # def __str__(self):
+        #     return repr(self)
+
+    obj = MyClass()
+    obj.y=10
+    print(repr(obj))
+    print(str(obj))
+    
+    other = MyClass()
+    print(obj == other, hash(obj), hash(other))
+    other.y = 10
+    print(obj == other, hash(obj), hash(other))

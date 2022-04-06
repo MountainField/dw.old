@@ -36,7 +36,7 @@ def grep(input_file=None, patterns=None, max_count=None, ignore_case=False):
     if ignore_case:
         regexp_flag = regexp_flag | re.IGNORECASE
     
-    def func(input_iterable):
+    def func(input_iterable, context):
         ans = input_iterable
         if input_file: # Initialize or reset iterable chain 
             input_iterable = iterable_to_read_bytes(input_file)
@@ -64,7 +64,7 @@ def grep(input_file=None, patterns=None, max_count=None, ignore_case=False):
                         break
             ans = ite()
         
-        return IterableMonad(ans)
+        return IterableMonad(ans, context)
     return func
 
 ###################################################################

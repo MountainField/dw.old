@@ -30,24 +30,28 @@ def cat(input_files=None,
         add_number=False):
     if not input_files: input_files = ["-"]
     
-    def func(input_iterable):
-
-        if input_files: # Initialize or reset iterable chain 
-            input_iterable = iterable_to_read_bytes(*input_files)
+    def func(input_iterable, context):
+        if input_iterable is None:
+            get_default = lambda: sys.stdin.buffer
         else:
-            if input_iterable is None: # Initialize head of iterable chain
-                input_iterable = iterable_to_read_bytes("-")
-            else: # Connect new iterable to input_iterable. do not replace it
-                pass
+            get_default = lambda: input_iterable
+        
+        if input_files: # Initialize or reset iterable chain 
+            input_iterable = iterable_to_read_bytes(*input_files, get_default=get_default)
+        else:
+            # Connect new iterable to input_iterable. do not replace it
+            pass
         
         # Main
+        ans = input_iterable
         if add_number:
-            input_iterable_bk = input_iterable
             def ite():
-                for idx, b in enumerate(input_iterable_bk):
+                for idx, b in enumerate(input_iterable):
                     yield (b"%6i\t" % idx) + b
-            return ite()
-        return IterableMonad(input_iterable)
+            ans= ite()
+        
+        context.datatype = bytes
+        return IterableMonad(ans, context)
     return func
 
 ###################################################################

@@ -28,16 +28,10 @@ _LOGGER: logging.Logger = logging.getLogger(__name__)
 ###################################################################
 
 def _iterable_to_read_text(input_file=None,
-                        encoding=None, errors=None, newline=None):
-
+                        encoding=None, errors=None, newline=None,
+                        get_default=None):
     if input_file == "-" or input_file is None:
-        # TODO: check encoding normalization
-        if encoding == sys.stdin.encoding:
-            _LOGGER.info("Using sys.stdin as input_file with text read mode")
-            text_io = sys.stdin
-        else:
-            _LOGGER.info("Wrapping sys.stdin.buffer as input_file with text read mode")
-            text_io = AutoCloseWrapper(io.TextIOWrapper(sys.stdin.buffer, encoding=encoding, newline=newline, errors=errors))
+        text_io = get_default()
     elif os.path.exists(input_file):
         _LOGGER.info("Opening input_file=='%s' with text read mode", input_file)
         text_io = AutoCloseWrapper(io.open(input_file, mode="rt", encoding=encoding, newline=newline, errors=errors))
@@ -45,13 +39,11 @@ def _iterable_to_read_text(input_file=None,
         raise ValueError(f"input_file=='{input_file}' does not exist")
     return text_io
 
-def iterable_to_read_text(*input_files):
+def iterable_to_read_text(*input_files, get_default=None):
     if not input_files:
         input_files = ["-"]
-    for input_file in input_files:
-        text_io = _iterable_to_read_text(input_file)
-        for b in text_io:
-            yield b
+    text_ios = [_iterable_to_read_text(input_file, get_default) for input_file in input_files]
+    return AutoCloseWrapper(*text_ios)
 
 ###################################################################
 
@@ -78,7 +70,7 @@ def to_file(file=None,
             encoding=None, errors=None, newline=None):
     output_file = file
 
-    def func(input_iterable):
+    def func(input_iterable, context):
         if output_file == "-" or output_file is None:
             if encoding == sys.stdout.encoding:
                 _LOGGER.info("Using sys.stdout as output_file with text write mode")
@@ -102,7 +94,7 @@ def to_file(file=None,
                 if text_io != sys.stdout:
                     _LOGGER.info("Closing output_file=='%s'", output_file)
                     text_io.close()
-        return IterableMonad(ite())
+        return IterableMonad(ite(), context)
 
     return func
 

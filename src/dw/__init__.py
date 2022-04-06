@@ -12,7 +12,7 @@
 # https://future-architect.github.io/articles/20201223/
 from __future__ import annotations
 
-__version__="0.0.23"
+__version__="0.0.24"
 
 from collections.abc import Iterable, Mapping, Callable
 import logging
@@ -29,21 +29,45 @@ DEFAULT_LOG_OUTPUT: str = os.environ.get('DW_LOG_OUTPUT', 'stdout')
 _LOGGER: logging.Logger = logging.getLogger(__name__)
 ###################################################################
 class AutoCloseWrapper:
-    def __init__(self, io_obj):
-        if not getattr(io_obj, "close", None):
-            raise ValueError("io_obj must have close method")
-        self.io_obj = io_obj
+    def __init__(self, *io_objects):
+        if not io_objects:
+            raise ValueError("io_objects is empty")
+        for io_object in io_objects:
+            if not getattr(io_object, "close", None):
+                raise ValueError("io_object must have close method")
+        
+        self.io_objects = io_objects
+        self.current_io_object=self.io_objects[0]
+
     def __iter__(self):
-        try:
-            for event in self.io_obj:
-                yield event
-        finally:
-            self.io_obj.close()
+        for io_object in self.io_objects:
+            self.current_io_object = io_object
+            try:
+                for event in self.current_io_object:
+                    yield event
+            finally:
+                self.current_io_object.close()
     
     # method missing
     def __getattr__(self, name):
-        print("called attr=", name)
-        return getattr(self.io_obj, name)
+        # print("called attr=", name)
+        return getattr(self.current_io_object, name)
+
+###################################################################
+class PipelineContext:
+    def __init__(self):
+        self.datatype: any = []
+        self.output: any=None
+    
+    def __hash__(self):
+        return hash(tuple(sorted(self.__dict__.items())))
+    
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+        
+    def __repr__(self):
+        kws = [f"{key}={value!r}" for key, value in self.__dict__.items()]
+        return "{}({})".format(type(self).__name__, ", ".join(kws))
 
 ###################################################################
 
@@ -53,11 +77,12 @@ def consume(iterable):
 
 class IterableMonad(object):
     
-    def __init__(self, value):
+    def __init__(self, value, context: PipelineContext=PipelineContext()):
         self.value = value
+        self.context = context
     
     def bind(self, unit_func):
-        return unit_func(self.value)
+        return unit_func(self.value, self.context)
     
     __or__ = bind
 
@@ -68,7 +93,7 @@ class IterableMonad(object):
         m = self.bind(unit_func)
         for event in m:
             pass
-        return m.value
+        return m.context.output
     
     __gt__ = redirect
 
@@ -80,8 +105,9 @@ class _HeadOfPipeMaybe(IterableMonad):
     
     def _ensure_iterable(self):
         if self.value is None:
-            m = self.unit_func(None)
+            m = self.unit_func(None, self.context)
             self.value = m.value
+            self.context = m.context
     
     def bind(self, unit_func):
         self._ensure_iterable()
@@ -92,8 +118,8 @@ class _HeadOfPipeMaybe(IterableMonad):
         self._ensure_iterable()
         return self.value
 
-    def __call__(self, input_iterable):
-        return self.unit_func(input_iterable)
+    def __call__(self, input_iterable, context):
+        return self.unit_func(input_iterable, context)
 
 # decorator
 def unit_func_constructor(constructor_func):
@@ -105,8 +131,8 @@ def unit_func_constructor(constructor_func):
 
     return wrapper
 
-###################################################################
 
+###################################################################
 from . import cli
 
 CLI: cli.ArgparseMonad = cli.argparse_monad("dw", "data wrangler", has_sub_command=True) \
@@ -116,18 +142,17 @@ def main_cli(*args: Iterable[str]) -> int:
     return CLI.argparse_wrapper.main(*args)
 ###################################################################
 
-# @unit_func_constructor
-# def to_list():
+@unit_func_constructor
+def to_list():
 
-#     def func(input_iterable):
-#         def ite():
-#             sink = []
-#             for event in input_iterable:
-#                 sink.append(event)
-#                 yield event
-#         return IterableMonad(ite())
-
-#     return func
+    def func(input_iterable, context):
+        context.output = []
+        def ite():
+            for b in input_iterable:
+                context.output.append(b)
+                yield b
+        return IterableMonad(ite(), context)
+    return func
 
 ###################################################################
 
