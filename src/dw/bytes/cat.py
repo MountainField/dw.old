@@ -25,7 +25,7 @@ from dw.bytes import CLI as DW_BYTES_CLI
 _LOGGER: logging.Logger = logging.getLogger(__name__)
 
 ###################################################################
-@unit_func_constructor
+@unit_func_constructor(from_datatype=bytes, to_datatype=bytes)
 def cat(input_files=None,
         add_number=False):
     if not input_files: input_files = ["-"]

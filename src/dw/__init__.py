@@ -12,7 +12,7 @@
 # https://future-architect.github.io/articles/20201223/
 from __future__ import annotations
 
-__version__="0.0.24"
+__version__="0.0.25"
 
 from collections.abc import Iterable, Mapping, Callable
 import logging
@@ -85,6 +85,7 @@ class IterableMonad(object):
         return unit_func(self.value, self.context)
     
     __or__ = bind
+    then = bind
 
     def __iter__(self):
         return self.value
@@ -122,15 +123,17 @@ class _HeadOfPipeMaybe(IterableMonad):
         return self.unit_func(input_iterable, context)
 
 # decorator
-def unit_func_constructor(constructor_func):
+def unit_func_constructor(from_datatype=None, to_datatype=None):
 
-    def wrapper(*args, **kwargs):
-        unit_func = constructor_func(*args, **kwargs)
-        m = _HeadOfPipeMaybe(unit_func)
-        return m
+    def _unit_func_constructor(constructor_func):
 
-    return wrapper
+        def _unit_func_wrapper(*args, **kwargs):
+            unit_func = constructor_func(*args, **kwargs)
+            m = _HeadOfPipeMaybe(unit_func)
+            return m
 
+        return _unit_func_wrapper
+    return _unit_func_constructor
 
 ###################################################################
 from . import cli
@@ -142,7 +145,7 @@ def main_cli(*args: Iterable[str]) -> int:
     return CLI.argparse_wrapper.main(*args)
 ###################################################################
 
-@unit_func_constructor
+@unit_func_constructor(from_datatype=any)
 def to_list():
 
     def func(input_iterable, context):

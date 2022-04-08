@@ -13,23 +13,23 @@
 from __future__ import annotations
 
 import argparse
+import codecs
 import io
 import logging
-from multiprocessing.sharedctypes import Value
 import os
 import sys
 
 import dw
 from dw import AutoCloseWrapper, IterableMonad, unit_func_constructor
+from dw.cli import ArgparseMonad
 
 # Logger
 _LOGGER: logging.Logger = logging.getLogger(__name__)
 
 ###################################################################
 
-def _iterable_to_read_text(input_file=None,
-                        encoding=None, errors=None, newline=None,
-                        get_default=None):
+def _iterable_to_read_text(input_file=None, get_default=None, 
+                        encoding=None, errors=None, newline=None):
     if input_file == "-" or input_file is None:
         text_io = get_default()
     elif os.path.exists(input_file):
@@ -39,40 +39,43 @@ def _iterable_to_read_text(input_file=None,
         raise ValueError(f"input_file=='{input_file}' does not exist")
     return text_io
 
-def iterable_to_read_text(*input_files, get_default=None):
+def iterable_to_read_text(*input_files, get_default=None,
+                          encoding=None, errors=None, newline=None):
     if not input_files:
         input_files = ["-"]
-    text_ios = [_iterable_to_read_text(input_file, get_default) for input_file in input_files]
+    text_ios = [_iterable_to_read_text(input_file, get_default, encoding, errors, newline) for input_file in input_files]
     return AutoCloseWrapper(*text_ios)
 
 ###################################################################
 
-# def unit_func(file):
-# def transform_func(*input_files):
-#     input_files = [x for x in input_files if x] # reduce None and empty str
+@unit_func_constructor(from_datatype=str, to_datatype=str)
+def text2bytes(encoding=None,
+        errors=None,
+        newline=None):
+    if not encoding: encoding = "UTF-8"
+    
+    def func(input_iterable, context):
+        if input_iterable is None:
+            raise ValueError()
+        
+        # Main
+        ans = input_iterable
+        def ite():
+            for t in input_iterable:
+                b = t.encode(encoding=encoding)
+                yield b
+        ans = ite()
+        return IterableMonad(ans, context)
+    return func
 
-#     def _deco(transform_func):
-#         def wrapper(input_iterable, *args, **kwargs):
-#             # Replace or not replace the input iterable
-#             if input_files: # Initialize or reset iterable chain 
-#                 input_iterable = iterable_to_read_text(*input_files)
-#             else:
-#                 if input_iterable is None: # Initialize head of iterable chain
-#                     input_iterable = iterable_to_read_text("-")
-#                 else: # Connect new iterable to input_iterable. do not replace it
-#                     pass
-#             return IterableMonad(transform_func(input_iterable, *args, **kwargs))
-#         return wrapper
-#     return _deco
-
-@unit_func_constructor
+@unit_func_constructor(from_datatype=str, to_datatype="file")
 def to_file(file=None,
             encoding=None, errors=None, newline=None):
     output_file = file
 
     def func(input_iterable, context):
         if output_file == "-" or output_file is None:
-            if encoding == sys.stdout.encoding:
+            if encoding and codecs.lookup(encoding) == codecs.lookup(sys.stdout.encoding):
                 _LOGGER.info("Using sys.stdout as output_file with text write mode")
                 text_io = sys.stdout
             else:
@@ -98,11 +101,40 @@ def to_file(file=None,
 
     return func
 
+@unit_func_constructor(from_datatype=str, to_datatype="file")
 def to_stdout():
     return to_file(file="-")
 
+@unit_func_constructor(from_datatype=str, to_datatype=str)
+def to_str():
+
+    def func(input_iterable, context):
+        def ite():
+            io_object = io.StringIO()
+            try:
+                for t in input_iterable:
+                    io_object.write(t)
+                    yield t
+            finally:
+                context.output = io_object.getvalue()
+                io_object.close()
+        return IterableMonad(ite(), context)
+
+    return func
 
 ###################################################################
+def add_encoding_args():
+    def func(argparse_wrapper):
+        argparse_wrapper.arg_parser.add_argument("--encoding", metavar="ENCODING", nargs=None, default=None, dest="encoding",
+                                                 help=f"decode and decode using the specified encoding[default stdio: '{sys.stdin.encoding}', file: 'utf-8']")
+        return ArgparseMonad(argparse_wrapper)
+    return func
+
+        
+        # self.arg_parser.add_argument("--encoding-errors", metavar="HANDLER", nargs=None, default=None, dest="encoding_errors",
+        #                              help="error handler for character encoding. {strict|ignore|replace|xmlcharrefreplace|backslashreplace}"
+        #                              +" [default: {0}]".format(dw.CONFIG["text"]["errors"])
+        #                              +" See also https://docs.python.org/3/library/codecs.html#codec-base-classes")
 
 CLI: dw.cli.ArgparseMonad = dw.cli.argparse_monad("text", "Sub command for text file with text encoding.", sub_command_of=dw.CLI, has_sub_command=True) \
                             | dw.cli.add_version_arg(dw.__version__)

@@ -25,7 +25,7 @@ from dw.bytes import CLI as DW_BYTES_CLI
 _LOGGER: logging.Logger = logging.getLogger(__name__)
 
 ###################################################################
-@unit_func_constructor
+@unit_func_constructor(from_datatype=bytes, to_datatype=bytes)
 def grep(input_file=None, patterns=None, max_count=None, ignore_case=False):
     if not input_file: input_file = "-"
     if not patterns: patterns = []

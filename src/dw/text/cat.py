@@ -19,14 +19,14 @@ import sys
 
 import dw
 from dw import AutoCloseWrapper, IterableMonad, unit_func_constructor
-from dw.text import iterable_to_read_text
+from dw.text import iterable_to_read_text, add_encoding_args
 from dw.text import CLI as DW_TEXT_CLI
 
 # Logger
 _LOGGER: logging.Logger = logging.getLogger(__name__)
 
 ###################################################################
-@unit_func_constructor
+@unit_func_constructor(from_datatype=str, to_datatype=str)
 def cat(input_files=None,
         encoding=None,
         errors=None,
@@ -50,7 +50,8 @@ def cat(input_files=None,
                     return AutoCloseWrapper(io.TextIOWrapper(sys.stdin.buffer, encoding=encoding, newline=newline, errors=errors))
 
         if input_files: # Initialize or reset iterable chain 
-            input_iterable = iterable_to_read_text(*input_files, get_default=get_default)
+            input_iterable = iterable_to_read_text(*input_files, get_default=get_default, 
+                                                    encoding=encoding, errors=errors, newline=newline)
         else:
             if context.datatype in (bytes, "bytes"):
                 input_iterable = io.TextIOWrapper(input_iterable)
@@ -88,11 +89,12 @@ CLI: dw.ArgparseMonad = dw.cli.argparse_monad("cat", "concat files", sub_command
                                 | dw.cli.add_version_arg(dw.__version__) \
                                 | dw.cli.add_log_args() \
                                 | dw.cli.add_input_files_args() \
-                                | dw.cli.add_output_file_args()
+                                | dw.cli.add_output_file_args() \
+                                | add_encoding_args()
 
 if __name__ == "__main__":
     if True: # Debug
-        # cat(["tmp/abc"]) > dw.text.to_stdout()
+        cat() > dw.text.to_stdout()
 
         # Iterable[bytes] -> Iterable[text] 
         dw.bytes.cat.cat(["tmp/abc"]) | cat() > dw.text.to_stdout()

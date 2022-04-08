@@ -794,7 +794,7 @@ if False:
     obj.y=10
     print(repr(obj))
 
-if True:
+if False:
     from dataclasses import dataclass
     
 
@@ -823,3 +823,10 @@ if True:
     print(obj == other, hash(obj), hash(other))
     other.y = 10
     print(obj == other, hash(obj), hash(other))
+
+if True:
+    import codecs
+    c1 = codecs.lookup("UTF-8")
+    print(c1.name)
+    c2 = codecs.lookup("utf8")
+    print(c1 is c2)

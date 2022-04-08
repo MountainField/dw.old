@@ -46,25 +46,7 @@ def iterable_to_read_bytes(*input_files, get_default=None):
 
 ###################################################################
 
-# def unit_func(file):
-# def transform_func(*input_files):
-#     input_files = [x for x in input_files if x] # reduce None and empty str
-
-#     def _deco(transform_func):
-#         def wrapper(input_iterable, *args, **kwargs):
-#             # Replace or not replace the input iterable
-#             if input_files: # Initialize or reset iterable chain 
-#                 input_iterable = read_iterable(*input_files)
-#             else:
-#                 if input_iterable is None: # Initialize head of iterable chain
-#                     input_iterable = read_iterable("-")
-#                 else: # Connect new iterable to input_iterable. do not replace it
-#                     pass
-#             return IterableMonad(transform_func(input_iterable, *args, **kwargs))
-#         return wrapper
-#     return _deco
-
-@unit_func_constructor
+@unit_func_constructor(from_datatype=bytes, to_datatype=bytes)
 def to_file(file=None):
     output_file = file
 
@@ -94,7 +76,22 @@ def to_file(file=None):
 def to_stdout():
     return to_file(file="-")
 
+@unit_func_constructor(from_datatype=bytes, to_datatype=bytes)
+def to_bytes():
 
+    def func(input_iterable, context):
+        def ite():
+            io_object = io.BytesIO()
+            try:
+                for b in input_iterable:
+                    io_object.write(b)
+                    yield b
+            finally:
+                context.output = io_object.getvalue()
+                io_object.close()
+        return IterableMonad(ite(), context)
+
+    return func
 
 ###################################################################
 
