@@ -12,7 +12,7 @@
 # https://future-architect.github.io/articles/20201223/
 from __future__ import annotations
 
-__version__="0.0.27"
+__version__="0.0.28"
 
 from collections.abc import Iterable, Mapping, Callable
 import logging
@@ -132,17 +132,14 @@ def _unit_functionalization(unit_func):
 
 # decorator
 def unit_func_constructor(from_datatype=None, to_datatype=None):
-
-    def _unit_func_constructor(constructor_func):
-
-        def _unit_func_wrapper(*args, **kwargs):
+    def f(constructor_func):
+        def _unit_func_constructor_wrapper(*args, **kwargs):
             unit_func = constructor_func(*args, **kwargs)
             unit_func = _unit_functionalization(unit_func)
             m = HeadOfPipeIterableMonad(unit_func)
             return m
-
-        return _unit_func_wrapper
-    return _unit_func_constructor
+        return _unit_func_constructor_wrapper
+    return f
 
 ###################################################################
 from . import cli
