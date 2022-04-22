@@ -17,7 +17,7 @@ import logging
 import sys
 
 import dw
-from dw import IterableMonad, unit_func_constructor
+from dw import unit_func_constructor
 from dw.bytes import iterable_to_read_bytes
 from dw.bytes import CLI as DW_BYTES_CLI
 
@@ -51,7 +51,8 @@ def cat(input_files=None,
             ans= ite()
         
         context.datatype = bytes
-        return IterableMonad(ans, context)
+        return ans, context
+
     return func
 
 ###################################################################

@@ -19,7 +19,7 @@ import os
 import sys
 
 import dw
-from dw import AutoCloseWrapper, IterableMonad, unit_func_constructor
+from dw import AutoCloseWrapper, unit_func_constructor
 
 # Logger
 _LOGGER: logging.Logger = logging.getLogger(__name__)
@@ -70,7 +70,7 @@ def to_file(file=None):
                 if bytes_io != sys.stdout.buffer:
                     _LOGGER.info("Closing output_file=='%s'", output_file)
                     bytes_io.close()
-        return IterableMonad(ite(), context)
+        return ite(), context
     return func
 
 def to_stdout():
@@ -89,7 +89,7 @@ def to_bytes():
             finally:
                 context.output = io_object.getvalue()
                 io_object.close()
-        return IterableMonad(ite(), context)
+        return ite(), context
 
     return func
 

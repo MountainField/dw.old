@@ -17,7 +17,7 @@ import logging
 import re
 
 import dw
-from dw import IterableMonad, unit_func_constructor
+from dw import unit_func_constructor
 from dw.bytes import iterable_to_read_bytes, argparse_action_for_bytes_list
 from dw.bytes import CLI as DW_BYTES_CLI
 
@@ -64,7 +64,7 @@ def grep(input_file=None, patterns=None, max_count=None, ignore_case=False):
                         break
             ans = ite()
         
-        return IterableMonad(ans, context)
+        return ans, context
     return func
 
 ###################################################################

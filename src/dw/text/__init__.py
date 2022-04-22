@@ -20,7 +20,7 @@ import os
 import sys
 
 import dw
-from dw import AutoCloseWrapper, IterableMonad, unit_func_constructor
+from dw import AutoCloseWrapper, unit_func_constructor
 from dw.cli import ArgparseMonad
 
 # Logger
@@ -65,7 +65,7 @@ def text2bytes(encoding=None,
                 b = t.encode(encoding=encoding)
                 yield b
         ans = ite()
-        return IterableMonad(ans, context)
+        return ans, context
     return func
 
 @unit_func_constructor(from_datatype=str, to_datatype="file")
@@ -97,7 +97,7 @@ def to_file(file=None,
                 if text_io != sys.stdout:
                     _LOGGER.info("Closing output_file=='%s'", output_file)
                     text_io.close()
-        return IterableMonad(ite(), context)
+        return ite(), context
 
     return func
 
@@ -118,7 +118,7 @@ def to_str():
             finally:
                 context.output = io_object.getvalue()
                 io_object.close()
-        return IterableMonad(ite(), context)
+        return ite(), context
 
     return func
 

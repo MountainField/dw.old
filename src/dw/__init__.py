@@ -12,7 +12,7 @@
 # https://future-architect.github.io/articles/20201223/
 from __future__ import annotations
 
-__version__="0.0.26"
+__version__="0.0.27"
 
 from collections.abc import Iterable, Mapping, Callable
 import logging
@@ -100,7 +100,7 @@ class IterableMonad(object):
     
     __gt__ = redirect
 
-class _HeadOfPipeMaybe(IterableMonad):
+class HeadOfPipeIterableMonad(IterableMonad):
     
     def __init__(self, unit_func):
         super().__init__(None)
@@ -124,6 +124,12 @@ class _HeadOfPipeMaybe(IterableMonad):
     def __call__(self, input_iterable, context):
         return self.unit_func(input_iterable, context)
 
+def _unit_functionalization(unit_func):
+    def f(*args, **kwargs):
+        ans, context = unit_func(*args, **kwargs)
+        return IterableMonad(ans, context)
+    return f
+
 # decorator
 def unit_func_constructor(from_datatype=None, to_datatype=None):
 
@@ -131,7 +137,8 @@ def unit_func_constructor(from_datatype=None, to_datatype=None):
 
         def _unit_func_wrapper(*args, **kwargs):
             unit_func = constructor_func(*args, **kwargs)
-            m = _HeadOfPipeMaybe(unit_func)
+            unit_func = _unit_functionalization(unit_func)
+            m = HeadOfPipeIterableMonad(unit_func)
             return m
 
         return _unit_func_wrapper
@@ -145,6 +152,7 @@ CLI: cli.ArgparseMonad = cli.argparse_monad("dw", "data wrangler", has_sub_comma
 
 def main_cli(*args: Iterable[str]) -> int:
     return CLI.argparse_wrapper.main(*args)
+
 ###################################################################
 
 @unit_func_constructor(from_datatype=any)
@@ -156,7 +164,7 @@ def to_list():
             for b in input_iterable:
                 context.output.append(b)
                 yield b
-        return IterableMonad(ite(), context)
+        return ite(), context
     return func
 
 ###################################################################

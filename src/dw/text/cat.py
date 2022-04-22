@@ -18,7 +18,7 @@ import logging
 import sys
 
 import dw
-from dw import AutoCloseWrapper, IterableMonad, unit_func_constructor
+from dw import AutoCloseWrapper, unit_func_constructor
 from dw.text import iterable_to_read_text, add_encoding_args
 from dw.text import CLI as DW_TEXT_CLI
 
@@ -69,7 +69,7 @@ def cat(input_files=None,
                     yield ("%6i\t" % idx) + t
             ans = ite()
         context.datatype = str
-        return IterableMonad(ans, context)
+        return ans, context
     return func
 
 ###################################################################

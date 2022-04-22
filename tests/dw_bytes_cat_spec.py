@@ -126,3 +126,7 @@ with description("dw.bytes.cat"):
                 bytes_io.write(b)
             self.assertEqual(bytes_io.getvalue(), b"     0\tabc\n" +
                                                   b"     1\tdef\n")
+
+
+if __name__ == "__main__":
+    pass
