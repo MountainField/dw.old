@@ -54,7 +54,7 @@ if False:
     for line in concat_iter:
         print(line)
 
-if False:
+if True:
 
     class Maybe(object):
         
@@ -429,7 +429,7 @@ if False:
         for line in m:
             print(line)
         
-    if True:
+    if False:
         # Version 5
         def byte_read_iterable(file):
             if file == "-":
@@ -632,6 +632,9 @@ if False:
         for line in m:
             print(line)
 
+        
+
+
 ###################
 if False:
     import io
@@ -824,9 +827,52 @@ if False:
     other.y = 10
     print(obj == other, hash(obj), hash(other))
 
-if True:
+if False:
     import codecs
     c1 = codecs.lookup("UTF-8")
     print(c1.name)
     c2 = codecs.lookup("utf8")
     print(c1 is c2)
+
+
+if False:
+
+    class Foo:
+        def __iter__(self):
+            yield 1
+            yield 2
+    
+    f = Foo()
+
+    for e in f:
+        print(e)
+if True:
+    class AutoCloseWrapper:
+        def __init__(self, *io_objects):
+            if not io_objects:
+                raise ValueError("io_objects is empty")
+            for io_object in io_objects:
+                if not getattr(io_object, "close", None):
+                    raise ValueError("io_object must have close method")
+            
+            self.io_objects = io_objects
+            self.current_io_object=self.io_objects[0]
+
+        def __iter__(self):
+            for io_object in self.io_objects:
+                self.current_io_object = io_object
+                try:
+                    for event in self.current_io_object:
+                        yield event
+                finally:
+                    self.current_io_object.close()
+        
+        # method missing
+        def __getattr__(self, name):
+            # print("called attr=", name)
+            return getattr(self.current_io_object, name)
+    
+    f = AutoCloseWrapper(io.open("tests/rsrc/abc.txt", "rb"))
+
+    for e in f:
+        print(e)

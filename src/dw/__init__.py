@@ -12,7 +12,7 @@
 # https://future-architect.github.io/articles/20201223/
 from __future__ import annotations
 
-__version__="0.0.25"
+__version__="0.0.26"
 
 from collections.abc import Iterable, Mapping, Callable
 import logging
@@ -32,9 +32,9 @@ class AutoCloseWrapper:
     def __init__(self, *io_objects):
         if not io_objects:
             raise ValueError("io_objects is empty")
-        for io_object in io_objects:
-            if not getattr(io_object, "close", None):
-                raise ValueError("io_object must have close method")
+        # for io_object in io_objects:
+        #     if not getattr(io_object, "close", None):
+        #         raise ValueError("io_object must have close method")
         
         self.io_objects = io_objects
         self.current_io_object=self.io_objects[0]
@@ -46,7 +46,8 @@ class AutoCloseWrapper:
                 for event in self.current_io_object:
                     yield event
             finally:
-                self.current_io_object.close()
+                if getattr(io_object, "close", None):
+                    self.current_io_object.close()
     
     # method missing
     def __getattr__(self, name):
@@ -88,7 +89,8 @@ class IterableMonad(object):
     then = bind
 
     def __iter__(self):
-        return self.value
+        # return self.value
+        return iter(self.value)
     
     def redirect(self, unit_func):
         m = self.bind(unit_func)
@@ -117,7 +119,7 @@ class _HeadOfPipeMaybe(IterableMonad):
     
     def __iter__(self):
         self._ensure_iterable()
-        return self.value
+        return super().__iter__()
 
     def __call__(self, input_iterable, context):
         return self.unit_func(input_iterable, context)
