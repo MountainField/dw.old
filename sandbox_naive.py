@@ -1,4 +1,75 @@
 
+# やりたいこと
+# SH
+cat /tmp/abc | grep xyz > out
+
+# Python で shのパイプっぽいことをやりたい
+# 必ずコマンドにパラメタが付く
+cat("/tmp/abc") | grep("xyz") > to_file("out")
+
+Just() | cat("/tmp/abc") | grep("xyz") > to_file("out") # 不自然
+
+cat() | lambda x: return Maybe(x) # 不自然かつ毎回実装だから冗長になる
+
+cat("/tmp/abc") >>= grep("xyz") >>= to_file("out")
+
+# これも許す
+grep("xyz", file="tmp/abc.txt") > to_file("out")
+
+cat() #=> 単体 => まだ何者か決まってない。遅延されてる。
+
+cat() | to_file() #=> モナドだった。
+
+obj = cat()
+
+Just("") | obj #=> 関数だった
+
+# ほんとは
+# M | f | f > f
+# これの返す
+# name() | name2() | name3() > name4()
+
+# いわゆるメソッドチェーンだとわざわざ実装
+class AbsNoga:
+    @abstract
+    def map(arg):
+        pass
+    
+    @abstract
+    def grep(arg):
+        pass
+    
+    @abstract
+    def sed(arg):
+        pass
+
+class ListNoga(AbsNoga):
+    def map(self, arg):
+        pass
+        return self
+    
+
+l = ListNoga()
+l.map().map().grep().sed()
+l.map()?.map().grep().sed() # 最近おJavascriptだと、こういう事ができる？
+
+map() || map() || grep() || 
+
+# ノガyまあ実装
+------
+# Fork拡張
+def wc();
+
+# Ruby だとできる
+# dynamic class 拡張
+AbsNoga.wc = wc
+
+# dynamic class 拡張
+ListNoga.wc = wc
+
+# あとから、「え？なんでwc 呼べるの？どこにていぎしあんの」
+
+
 import collections
 import io
 import itertools
@@ -86,6 +157,19 @@ if True:
     NOTHING = Nothing(None)
 
     if False:
+        # Version 0
+        def my_cat(iter):
+            iter = io.open("tmp/abc", "rb")
+            return Just(iter)
+
+        Just("").bind(my_cat)
+        iter = m.value
+        for line in iter:
+            print(line)
+
+        my_cat | cat # うごかない。bind()がmy_catにないから
+
+    if False:
         # Version 1
         def cat(file):
             def func(iter):
@@ -119,13 +203,15 @@ if True:
 
     if False:
         # Version 3 クラスで実現しちゃう
-        class cat:
+        class cat(Maybe, Callable):
+            
             def __init__(self, file=None):
                 self.file = file
                 self.value = None
                 if file:
                     self.value = io.open(self.file, "rb")
-
+            
+            @overwirde
             def __call__(self, input_iterable):
                 if self.file is not None:
                     input_iterable = io.open(self.file, "rb")
@@ -134,13 +220,6 @@ if True:
                         raise ValueError("No resource to load")
                 return Maybe(input_iterable)
 
-            def bind(self, a_to_m_b):
-                if self is NOTHING:
-                    return NOTHING
-                else:
-                    return a_to_m_b(self.value)
-            
-            __or__ = bind
 
         m = Just("") | cat("tmp/abc")
         for line in m.value:

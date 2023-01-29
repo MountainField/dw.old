@@ -14,6 +14,7 @@ from __future__ import annotations
 
 __version__="0.0.28"
 
+from collections import defaultdict
 from collections.abc import Iterable, Mapping, Callable
 import logging
 import os
@@ -57,7 +58,7 @@ class AutoCloseWrapper:
 ###################################################################
 class PipelineContext:
     def __init__(self):
-        self.datatype: any = []
+        self.data_info_stack=[]
         self.output: any=None
     
     def __hash__(self):
@@ -141,6 +142,8 @@ def unit_func_constructor(from_datatype=None, to_datatype=None):
         return _unit_func_constructor_wrapper
     return f
 
+DATATYPE2DATATYPE2CONVERTER = defaultdict(dict)
+
 ###################################################################
 from . import cli
 
@@ -151,6 +154,7 @@ def main_cli(*args: Iterable[str]) -> int:
     return CLI.argparse_wrapper.main(*args)
 
 ###################################################################
+
 
 @unit_func_constructor(from_datatype=any)
 def to_list():

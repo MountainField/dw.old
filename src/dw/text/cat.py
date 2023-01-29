@@ -19,7 +19,7 @@ import sys
 
 import dw
 from dw import AutoCloseWrapper, unit_func_constructor
-from dw.text import iterable_to_read_text, add_encoding_args
+from dw.text import rectify, add_encoding_args
 from dw.text import CLI as DW_TEXT_CLI
 
 # Logger
@@ -27,48 +27,22 @@ _LOGGER: logging.Logger = logging.getLogger(__name__)
 
 ###################################################################
 @unit_func_constructor(from_datatype=str, to_datatype=str)
-def cat(input_files=None,
-        encoding=None,
-        errors=None,
-        newline=None,
+def cat(input_files=[],
+        encoding=None, errors=None, newline=None,
         add_number=False):
     if not input_files: input_files = ["-"]
     if not encoding: encoding = "UTF-8"
     
     def func(input_iterable, context):
-        if input_iterable:
-            def get_default():
-                return input_iterable
-        else:
-            def get_default():
-                # TODO: check encoding normalization
-                if encoding == sys.stdin.encoding:
-                    _LOGGER.info("Using sys.stdin as input_file with text read mode")
-                    return sys.stdin
-                else:
-                    _LOGGER.info("Wrapping sys.stdin.buffer as input_file with text read mode")
-                    return AutoCloseWrapper(io.TextIOWrapper(sys.stdin.buffer, encoding=encoding, newline=newline, errors=errors))
+        input_text_iterable = rectify(input_iterable, context, *input_files, encoding=encoding, errors=errors, newline=newline)
 
-        if input_files: # Initialize or reset iterable chain 
-            input_iterable = iterable_to_read_text(*input_files, get_default=get_default, 
-                                                    encoding=encoding, errors=errors, newline=newline)
-        else:
-            if context.datatype in (bytes, "bytes"):
-                input_iterable = io.TextIOWrapper(input_iterable)
-            elif context.datatype in (str, "str", "text"):
-                pass
-            else:
-                raise ValueError()
-        
         # Main
-        ans = input_iterable
+        ans = input_text_iterable
         if add_number:
-            input_iterable_bk = input_iterable
             def ite():
-                for idx, t in enumerate(input_iterable_bk):
+                for idx, t in enumerate(input_text_iterable):
                     yield ("%6i\t" % idx) + t
             ans = ite()
-        context.datatype = str
         return ans, context
     return func
 

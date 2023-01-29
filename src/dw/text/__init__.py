@@ -18,6 +18,7 @@ import io
 import logging
 import os
 import sys
+from typing import NamedTuple
 
 import dw
 from dw import AutoCloseWrapper, unit_func_constructor
@@ -27,23 +28,59 @@ from dw.cli import ArgparseMonad
 _LOGGER: logging.Logger = logging.getLogger(__name__)
 
 ###################################################################
+class StrDataInfo(NamedTuple):
+    type :type    = str
+    encoding: str = None
+    errors: str   = None
+    newline:str   = None
 
-def _iterable_to_read_text(input_file=None, get_default=None, 
-                        encoding=None, errors=None, newline=None):
-    if input_file == "-" or input_file is None:
-        text_io = get_default()
-    elif os.path.exists(input_file):
-        _LOGGER.info("Opening input_file=='%s' with text read mode", input_file)
-        text_io = AutoCloseWrapper(io.open(input_file, mode="rt", encoding=encoding, newline=newline, errors=errors))
+
+def text2bytes_generator(input_iterable, encoding=None, errors=None, newline=None):
+    if errors is None: errors = "replace" # TODO:
+    for t in input_iterable:
+        yield t.encode(encoding=encoding, errors=errors)
+
+def _text2bytes_generator(input_iterable, datainfo):
+    return text2bytes_generator(input_iterable, datainfo.encoding, datainfo.errors, datainfo.newline)
+
+dw.DATATYPE2DATATYPE2CONVERTER[str][bytes] = _text2bytes_generator
+
+###################################################################
+def rectify(input_iterable, context, *input_files,
+         encoding="utf-8", errors=None, newline=None):
+    def get_default_iterable():
+        if input_iterable is None:
+            if codecs.lookup(encoding) == codecs.lookup(sys.stdin.encoding): # TODO normalize
+                return sys.stdin
+            else:
+                raise ValueError(f"{encoding} != {sys.stdin.encoding}")
+        else:
+            if context.data_info_stack[-1].type in (str, "str", "text"):
+                return input_iterable
+            elif context.data_info_stack[-1].type in (bytes, "bytes"):
+                _LOGGER.info("Insert bytes to text converter")
+                return io.TextIOWrapper(input_iterable, encoding=encoding, newline=newline, errors=errors)
+            else:
+                raise ValueError()
+
+    text_ios = []
+    if input_files: # Initialize or reset iterable chain
+        for input_file in input_files:
+            if input_file == "-":
+                text_ios.append(get_default_iterable())
+            else:
+                if os.path.exists(input_file):
+                    _LOGGER.info("Opening input_file=='%s' with text read mode and encoding=='%s'", input_file, encoding)
+                    text_ios.append(io.open(input_file, "rt", encoding=encoding, newline=newline, errors=errors))
+                else:
+                    raise ValueError(f"input_file=='{input_file}' does not exist")                
     else:
-        raise ValueError(f"input_file=='{input_file}' does not exist")
-    return text_io
+        text_ios.append(get_default_iterable())
+    
+    if not context.data_info_stack \
+    or context.data_info_stack[-1].type not in (str, "str", "text"):
+        context.data_info_stack.append(StrDataInfo(str, encoding, errors, newline))
 
-def iterable_to_read_text(*input_files, get_default=None,
-                          encoding=None, errors=None, newline=None):
-    if not input_files:
-        input_files = ["-"]
-    text_ios = [_iterable_to_read_text(input_file, get_default, encoding, errors, newline) for input_file in input_files]
     return AutoCloseWrapper(*text_ios)
 
 ###################################################################

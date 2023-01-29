@@ -15,6 +15,7 @@ from __future__ import annotations
 import io
 import logging
 import os
+from tabnanny import verbose
 
 from uspec import description, context, it
 
@@ -70,4 +71,8 @@ with description("dw.IterableMonad"):
         m = dw.IterableMonad(["a", "b", "c"])
         ans = [e for e in m]
         self.assertEqual(ans, ["a", "b", "c"])
+
+if __name__ == "__main__":
+    import unittest
+    unittest.main(verbosity=2)
 

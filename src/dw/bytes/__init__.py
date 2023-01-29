@@ -17,6 +17,7 @@ import io
 import logging
 import os
 import sys
+from typing import NamedTuple
 
 import dw
 from dw import AutoCloseWrapper, unit_func_constructor
@@ -25,24 +26,42 @@ from dw import AutoCloseWrapper, unit_func_constructor
 _LOGGER: logging.Logger = logging.getLogger(__name__)
 
 ###################################################################
+class BytesDataInfo(NamedTuple):
+    type = bytes
 
-def _iterable_to_read_bytes(input_file=None, get_default=None):
-    if input_file == "-" or input_file is None:
-        _LOGGER.info("Using sys.stdin.buffer as input_file with binary read mode")
-        bytes_io = get_default()
-    elif os.path.exists(input_file):
-        _LOGGER.info("Opening input_file=='%s' with binary read mode", input_file)
-        bytes_io = io.open(input_file, "rb")
+def rectify(input_iterable, context, *input_files):
+    def get_default_iterable():
+        if input_iterable is None:
+            return sys.stdin.buffer
+        else:
+            if context.data_info_stack[-1].type in (bytes, "bytes"):
+                return input_iterable
+            elif dw.DATATYPE2DATATYPE2CONVERTER[context.data_info_stack[-1].type][bytes]:
+                converter = dw.DATATYPE2DATATYPE2CONVERTER[context.data_info_stack[-1].type][bytes]
+                return converter(input_iterable, context.data_info_stack[-1])
+            else:
+                raise ValueError()
+
+    bytes_ios = []
+    if input_files: # Initialize or reset iterable chain
+        for input_file in input_files:
+            if input_file == "-":
+                bytes_ios.append(get_default_iterable())
+            else:
+                if os.path.exists(input_file):
+                    _LOGGER.info("Opening input_file=='%s' with binary read mode", input_file)
+                    bytes_ios.append(io.open(input_file, "rb"))
+                else:
+                    raise ValueError(f"input_file=='{input_file}' does not exist")                
     else:
-        raise ValueError(f"input_file=='{input_file}' does not exist")
-    return bytes_io
+        bytes_ios.append(get_default_iterable())
+    
+    if not context.data_info_stack \
+    or context.data_info_stack[-1].type not in (bytes, "bytes"):
+        context.data_info_stack.append(BytesDataInfo())
 
-def iterable_to_read_bytes(*input_files, get_default=None):
-    if get_default is None: raise ValueError("default io creater function is required")
-    if not input_files:
-        input_files = ["-"]
-    bytes_ios = [_iterable_to_read_bytes(input_file, get_default) for input_file in input_files]
     return AutoCloseWrapper(*bytes_ios)
+
 
 ###################################################################
 

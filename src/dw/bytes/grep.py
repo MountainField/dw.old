@@ -18,7 +18,7 @@ import re
 
 import dw
 from dw import unit_func_constructor
-from dw.bytes import iterable_to_read_bytes, argparse_action_for_bytes_list
+from dw.bytes import rectify, argparse_action_for_bytes_list
 from dw.bytes import CLI as DW_BYTES_CLI
 
 # Logger
@@ -37,16 +37,10 @@ def grep(input_file=None, patterns=None, max_count=None, ignore_case=False):
         regexp_flag = regexp_flag | re.IGNORECASE
     
     def func(input_iterable, context):
-        ans = input_iterable
-        if input_file: # Initialize or reset iterable chain 
-            input_iterable = iterable_to_read_bytes(input_file)
-        else:
-            if input_iterable is None: # Initialize head of iterable chain
-                input_iterable = iterable_to_read_bytes("-")
-            else: # Connect new iterable to input_iterable. do not replace it
-                pass
-        
+        input_bytes_iterable = rectify(input_iterable, context, input_file)
+
         # Main
+        ans = input_iterable
         if patterns:
             regex_patterns = [re.compile(pattern, flags=regexp_flag) for pattern in patterns if pattern]
             def ite():

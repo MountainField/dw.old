@@ -18,39 +18,29 @@ import sys
 
 import dw
 from dw import unit_func_constructor
-from dw.bytes import iterable_to_read_bytes
+from dw.bytes import rectify
 from dw.bytes import CLI as DW_BYTES_CLI
 
 # Logger
 _LOGGER: logging.Logger = logging.getLogger(__name__)
 
+
 ###################################################################
 @unit_func_constructor(from_datatype=bytes, to_datatype=bytes)
-def cat(input_files=None,
+def cat(input_files=[],
         add_number=False):
-    if not input_files: input_files = ["-"]
     
     def func(input_iterable, context):
-        if input_iterable is None:
-            get_default = lambda: sys.stdin.buffer
-        else:
-            get_default = lambda: input_iterable
-        
-        if input_files: # Initialize or reset iterable chain 
-            input_iterable = iterable_to_read_bytes(*input_files, get_default=get_default)
-        else:
-            # Connect new iterable to input_iterable. do not replace it
-            pass
-        
+        input_bytes_iterable = rectify(input_iterable, context, *input_files)
+
         # Main
-        ans = input_iterable
+        ans = input_bytes_iterable
         if add_number:
             def ite():
-                for idx, b in enumerate(input_iterable):
+                for idx, b in enumerate(input_bytes_iterable):
                     yield (b"%6i\t" % idx) + b
             ans= ite()
         
-        context.datatype = bytes
         return ans, context
 
     return func
@@ -71,7 +61,7 @@ CLI: dw.ArgparseMonad = dw.cli.argparse_monad("cat", "concat files", sub_command
                                 | dw.cli.add_output_file_args()
 
 if __name__ == "__main__":
-    if False: # Debug
+    if True: # Debug
         cat(["tmp/abc"]) > dw.bytes.to_stdout()
         sys.exit()
     sys.exit(CLI.argparse_wrapper.main())

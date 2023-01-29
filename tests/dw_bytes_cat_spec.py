@@ -129,4 +129,5 @@ with description("dw.bytes.cat"):
 
 
 if __name__ == "__main__":
-    pass
+    import unittest
+    unittest.main(verbosity=2)
